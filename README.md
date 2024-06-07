@@ -1,3 +1,16 @@
+# Hey there!
+This is a update for aleksilassila's original "Home islands system" to make it work on 1.20.6 Spigot Servers.
+The whole plugin, from installation to actual features, works now on the 1.20.6 version. 
+Missing Biomes have been added.
+Java has been updated.
+And so on.
+
+**BUT** I am only a fresh beginner with Java and coding in general, so I will not be able to gurantee that everything works as intended.
+
+## You will need the following
+You now need to use Java 17 or above for your Minecraft server. So be sure to update your Java accordingly! 
+
+**Now back to the original Description!**
 # Islands
 A spigot plugin for creating floating island homes with different biomes.
 Optimized for survival gamemode. **This is not a skyblock plugin!**
