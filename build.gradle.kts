@@ -16,11 +16,11 @@ repositories {
 dependencies {
     implementation("org.jetbrains:annotations:20.1.0")
 
-    compileOnly("org.spigotmc:spigot-api:1.15.1-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot-api:1.20.6-R0.1-SNAPSHOT")
     compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.2.0-SNAPSHOT")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
     compileOnly("com.github.TechFortress:GriefPrevention:16.18")
-    compileOnly("com.github.stefvanschie.inventoryframework:IF:0.10.7")
+    implementation("com.github.stefvanschie.inventoryframework:IF:0.10.14")
 }
 
 tasks.register<Copy>("copyJar") {
@@ -30,4 +30,8 @@ tasks.register<Copy>("copyJar") {
 
 tasks.named("build") {
     dependsOn("copyJar")
+}
+
+tasks.jar {
+    from(configurations.runtimeClasspath.get().map({ if(it.isDirectory) it else zipTree(it) }))
 }

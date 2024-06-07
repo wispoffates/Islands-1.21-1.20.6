@@ -1,0 +1,86 @@
+islandsWorldName: world                 # If this is something else than world, you have to do /mvimport on the world so that gp knows about it
+wildernessWorldName: wilderness
+
+defaultIslandLimit: 2                   # -1 to disable limit
+groupLimits:                            # Requires vault to work, all limits can be bypassed with islands.bypass.islandLimit
+  staff: 5                              # Groups are case-sensitive and usually they use the group's display name if there's one
+
+islandSizes:                            # Island sizing. You can add or remove as many sizes as you want.
+  BIG: 80                               # NORMAL is the fallback size. At least 1 size has to be defined.
+  NORMAL: 64                            # For now due to bukkit api, the default sizes here can be disabled only by
+  SMALL: 32                             # setting their size as 0.
+
+islandPrices:                           # If vault has been enabled, you can set island creation prices here
+  BIG: 5000
+  NORMAL: 3000
+  SMALL: 1000
+
+economy:
+  recreateCost: 0                       # Will be added to island prices when recreating island
+  recreateSum: true                     # When enabled, recreate price will be newIslandPrice - oldIslandPrice and > 0.
+
+replaceOnGeneration:                    # Replace blocks when generating new island. Format: toReplace: replaceWith
+  iron_ore: stone
+  gold_ore: stone
+  coal_ore: stone
+  gravel: stone
+
+generation:
+  searchJump: 6                         # How man blocks should be skipped when looking for biomes, bigger faster
+  biomeSearchArea: 3500                 # Biome search area, smaller faster. Increase this if you want more biomes to be available.
+  islandGridSpacing: 100                # At least the size of island.BIG + 4. Space between island centres.
+  islandGridVerticalSpacing: 50         # Vertical space between two islands next to each other.
+  generationDelayInTicks: 0.3           # 2 Will generate 1 row per 2 ticks, 0.5 will generate 2 rows per 1 tick.
+  maxVariationsPerBiome: 5              # Max locations generated for each biome, lower the value to speed up server startup.
+  clearSpeedMultiplier: 3               # Removing blocks should be faster than placing them, so you might want to speed up clearing.
+  minBiomeSize: 80                      # Minimum width of biome block so that it gets picked up by the generator and added as available variation.
+                                        # Should be the same as the biggest island size being generated. Read more in Wiki > How does it work
+  stalactiteLength: 8                   # Length of procedural stalactite hanging from islands
+  stalactiteSpacing: 4                  # Average distance between hanging stalactites
+
+biomeBlacklist:                         # These biomes do not get picked up by island generator.
+  - DEEP_OCEAN                          # Ocean biomes work poorly with islands.
+  - DEEP_WARM_OCEAN
+  - DEEP_LUKEWARM_OCEAN
+  - DEEP_COLD_OCEAN
+  - DEEP_FROZEN_OCEAN
+  - SHATTERED_SAVANNA
+  - SHATTERED_SAVANNA_PLATEAU
+  - MOUNTAINS
+  - GRAVELLY_MOUNTAINS
+  - MODIFIED_GRAVELLY_MOUNTAINS
+
+excludeShapes:                          # These biomes will always use the default round shape.
+  - LUKEWARM_OCEAN
+  - OCEAN
+  - FROZEN_OCEAN
+  - WARM_OCEAN
+  - LUKEWARM_OCEAN
+  - COLD_OCEAN
+
+disableMobsOnIslands: true
+tpCooldownTime: 10                      # /home and /visit cooldown after damage.
+illegalIslandNames:                     # Blocked island names. Useful if you want to reserve a name for "official" island
+#  - spawn
+wildernessCoordinateMultiplier: 4       # Player's x and z coordinates gets multiplied by this value when they jump to wilderness.
+voidTeleport: true                      # If disabled, void kills again in islandsWorld
+islandDamage: false                     # Enable / disable damage on islands
+restrictIslandBlockFlows: true          # Let water / lava only flow inside a sphere containing island
+disableWilderness: false                # Disable wilderness, do not touch unless you know what you are doing
+allowHomeOnlyFromOverworld: true        # Disable /home in nether and end
+preserveWildernessPositions: false      # If enabled, players will continue where they left in the wilderness. Resets on server restarts.
+disableNeutralTeleports: false          # Disable teleporting neutrals from wilderness to islands with /home command
+teleportAllNameTagged: true             # Enable teleportation of all entities that have been named with name tags
+neutralTeleportRange: 2                 # How far neutrals are being teleported around the player
+unfinishedIslandTeleports: true         # Deny teleports to island that are still being generated.
+disableRandomBiome: false               # Disable RANDOM biome in island creation
+syncTime: true                          # Night skips will be synced between islands world and wilderness.
+homeSubcommand: false                   # If true, /home will become /island home. Useful if you are using other plugins that define /home
+useProceduralShapes: true               # Procedurally generate hanging stalactite underneath islands.
+overrideBedSpawns: false                # When true, players respawn on spawn island instead of their beds.
+confirmTimeout: 8                       # How long /is confirm is available
+locale: en                              # Available: en, zh_cn, ru, es, pt_br
+
+enableIslandProtection: true            # Enable GriefPrevention integration
+overrideGriefPreventionWorlds: true     # Override gp world mode settings for wilderness and islands worlds
+GPAccessWholePlot: false                # Allow players to build anywhere on the whole plot
