@@ -31,4 +31,3 @@ public class UpdateChecker {
         });
     }
 }
-// Will lead this to future updates via Github.... As soon as I feel like doing that work! (BW)

@@ -16,7 +16,8 @@ repositories {
 dependencies {
     implementation("org.jetbrains:annotations:20.1.0")
 
-    compileOnly("org.spigotmc:spigot-api:1.20.6-R0.1-SNAPSHOT")
+
+    compileOnly("org.spigotmc:spigot-api:1.21-R0.1-SNAPSHOT")
     compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.3.0-SNAPSHOT")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
     compileOnly("com.github.TechFortress:GriefPrevention:16.18")
@@ -24,6 +25,7 @@ dependencies {
 }
 
 tasks.register<Copy>("copyJar") {
+    dependsOn("jar") // Ensure the jar task is run before this one
     from(layout.buildDirectory.file("libs/${project.name}.jar"))
     into("server/plugins")
 }
