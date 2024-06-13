@@ -1,13 +1,14 @@
 package me.aleksilassila.islands.utils;
 
-import me.aleksilassila.islands.Islands;
-import org.bukkit.Bukkit;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Scanner;
 import java.util.function.Consumer;
+
+import org.bukkit.Bukkit;
+
+import me.aleksilassila.islands.Islands;
 
 public class UpdateChecker {
     private final Islands plugin;
@@ -30,3 +31,4 @@ public class UpdateChecker {
         });
     }
 }
+// Will lead this to future updates via Github.... As soon as I feel like doing that work! (BW)

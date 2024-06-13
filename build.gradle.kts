@@ -3,7 +3,7 @@ plugins {
 }
 
 group "me.aleksilassila.islands"
-version "5.0.9"
+version "5.1.0-BW.V1"
 
 repositories {
     mavenCentral()
@@ -17,7 +17,7 @@ dependencies {
     implementation("org.jetbrains:annotations:20.1.0")
 
     compileOnly("org.spigotmc:spigot-api:1.20.6-R0.1-SNAPSHOT")
-    compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.2.0-SNAPSHOT")
+    compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.3.0-SNAPSHOT")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
     compileOnly("com.github.TechFortress:GriefPrevention:16.18")
     implementation("com.github.stefvanschie.inventoryframework:IF:0.10.14")
