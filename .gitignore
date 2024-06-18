@@ -5,3 +5,5 @@ server/
 build/
 target/
 out/
+.vscode/
+bin/main/

@@ -3,7 +3,7 @@ plugins {
 }
 
 group "me.aleksilassila.islands"
-version "5.0.9"
+version "5.1.0-BW.V1"
 
 repositories {
     mavenCentral()
@@ -16,18 +16,24 @@ repositories {
 dependencies {
     implementation("org.jetbrains:annotations:20.1.0")
 
-    compileOnly("org.spigotmc:spigot-api:1.15.1-R0.1-SNAPSHOT")
-    compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.2.0-SNAPSHOT")
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7")
-    compileOnly("com.github.TechFortress:GriefPrevention:16.18")
-    compileOnly("com.github.stefvanschie.inventoryframework:IF:0.10.7")
+
+    compileOnly("org.spigotmc:spigot-api:1.21-R0.1-SNAPSHOT")
+    compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.3.0-SNAPSHOT")
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
+    compileOnly("com.github.GriefPrevention:GriefPrevention:16.18.3")
+    implementation("com.github.stefvanschie.inventoryframework:IF:0.10.14")
 }
 
 tasks.register<Copy>("copyJar") {
+    dependsOn("jar") // Ensure the jar task is run before this one
     from(layout.buildDirectory.file("libs/${project.name}.jar"))
     into("server/plugins")
 }
 
 tasks.named("build") {
     dependsOn("copyJar")
+}
+
+tasks.jar {
+    from(configurations.runtimeClasspath.get().map({ if(it.isDirectory) it else zipTree(it) }))
 }

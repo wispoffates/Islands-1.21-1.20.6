@@ -1,16 +1,26 @@
 package me.aleksilassila.islands;
 
-import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import me.aleksilassila.islands.commands.IslandCommands;
-import me.aleksilassila.islands.generation.Biomes;
-import me.aleksilassila.islands.generation.IslandGeneration;
-import me.aleksilassila.islands.utils.ConfirmItem;
-import me.aleksilassila.islands.utils.Messages;
-import me.aleksilassila.islands.utils.Permissions;
-import me.aleksilassila.islands.utils.UpdateChecker;
-import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.permission.Permission;
-import org.bukkit.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Difficulty;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.WorldCreator;
+import org.bukkit.WorldType;
 import org.bukkit.block.Biome;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -20,14 +30,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-
 import org.jetbrains.annotations.Nullable;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.*;
+
+import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+
+import me.aleksilassila.islands.commands.IslandCommands;
+import me.aleksilassila.islands.generation.Biomes;
+import me.aleksilassila.islands.generation.IslandGeneration;
+import me.aleksilassila.islands.utils.ConfirmItem;
+import me.aleksilassila.islands.utils.Messages;
+import me.aleksilassila.islands.utils.Permissions;
+import me.aleksilassila.islands.utils.UpdateChecker;
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.permission.Permission;
 
 public class Islands extends JavaPlugin {
     public static Islands instance;
@@ -73,14 +88,14 @@ public class Islands extends JavaPlugin {
             String thisMajorVersion = this.getDescription().getVersion().substring(0, this.getDescription().getVersion().lastIndexOf("."));
 
             if (this.getDescription().getVersion().equalsIgnoreCase(version)) {
-                getLogger().info("You are up to date.");
+                getLogger().info("Cannot check for updates, check the GitHub fork!");
             } else if (!majorVersion.equalsIgnoreCase(thisMajorVersion)) {
-                getLogger().warning("There's a new major update available!");
+                getLogger().warning("Cannot check for updates, check the GitHub fork!");
             } else {
-                getLogger().info("There's a new minor update available!");
+                getLogger().info("Cannot check for updates, check the GitHub fork!");
             }
-        });
-
+        }); //Update notifications have been temporarily modified, as the Spigot page is not up to date. (There's a new major update available!)
+            //I will update this to go for the Github instead in the future, if no spigot update happens.
         if (new File(getDataFolder() + "/config.yml").exists()) {
             if (!validateConfig()) {
                 Bukkit.getPluginManager().disablePlugin(this);

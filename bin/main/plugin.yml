@@ -1,8 +1,8 @@
-name: Islands-BW
-version: 5.1.0-BW.V1
-author: Aleksi Lassila, Updated by BloodWolfPlayer
+name: Islands
+version: 5.0.9
+author: Aleksi Lassila
 main: me.aleksilassila.islands.Islands
-api-version: 1.20.6
+api-version: 1.15
 softdepend: [Vault, WorldEdit, GriefPrevention]
 commands:
   island:
@@ -70,7 +70,6 @@ permissions:
     children:
       islands.command.home: true
       islands.command.home.list: true
-
 
   islands.command:
     description: Access to island command

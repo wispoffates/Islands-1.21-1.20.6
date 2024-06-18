@@ -23,7 +23,6 @@ replaceOnGeneration:                    # Replace blocks when generating new isl
   iron_ore: stone
   gold_ore: stone
   coal_ore: stone
-  copper_ore: stone
   gravel: stone
 
 generation:
@@ -41,15 +40,15 @@ generation:
 
 biomeBlacklist:                         # These biomes do not get picked up by island generator.
   - DEEP_OCEAN                          # Ocean biomes work poorly with islands.
-  - DEEP_WARM_OCEAN                     # I left the new ocean Biomes in. Feel free to disable them here! (BW)
+  - DEEP_WARM_OCEAN
   - DEEP_LUKEWARM_OCEAN
   - DEEP_COLD_OCEAN
   - DEEP_FROZEN_OCEAN
   - SHATTERED_SAVANNA
   - SHATTERED_SAVANNA_PLATEAU
-  #- MOUNTAINS
-  #- GRAVELLY_MOUNTAINS
-  #- MODIFIED_GRAVELLY_MOUNTAINS
+  - MOUNTAINS
+  - GRAVELLY_MOUNTAINS
+  - MODIFIED_GRAVELLY_MOUNTAINS
 
 excludeShapes:                          # These biomes will always use the default round shape.
   - LUKEWARM_OCEAN

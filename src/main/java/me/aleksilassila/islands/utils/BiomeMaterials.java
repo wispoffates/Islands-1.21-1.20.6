@@ -32,7 +32,7 @@ public enum BiomeMaterials {
     SNOWY_BEACH(Material.SAND),
     BIRCH_FOREST(Material.BIRCH_LOG),
     BIRCH_FOREST_HILLS(Material.BIRCH_LOG),
-    DARK_FOREST(Material.RED_MUSHROOM_BLOCK),
+    DARK_FOREST(Material.DARK_OAK_LOG),
     SNOWY_TAIGA(Material.SPRUCE_LOG),
     SNOWY_TAIGA_HILLS(Material.SPRUCE_LOG),
     GIANT_TREE_TAIGA(Material.PODZOL),
@@ -93,16 +93,20 @@ public enum BiomeMaterials {
     OLD_GROWTH_BIRCH_FOREST(Material.BIRCH_LOG),
     OLD_GROWTH_SPRUCE_TAIGA(Material.SPRUCE_LOG),
     WINDSWEPT_SAVANNA(Material.ACACIA_LOG),
-//    DRIPSTONE_CAVES(Material.POINTED_DRIPSTONE),
-//    LUSH_CAVES(Material.CAVE_VINES),
+    DRIPSTONE_CAVES(Material.POINTED_DRIPSTONE),
+    LUSH_CAVES(Material.CAVE_VINES),
     MEADOW(Material.GRASS_BLOCK),
     GROVE(Material.SPRUCE_LOG),
     SNOWY_SLOPES(Material.SNOW_BLOCK),
     FROZEN_PEAKS(Material.ICE),
     JAGGED_PEAKS(Material.STONE),
     STONY_PEAKS(Material.STONE),
-    DEFAULT(null),
-    CUSTOM(null);
+    MANGROVE_SWAMP(Material.MANGROVE_ROOTS),
+    CHERRY_GROVE(Material.CHERRY_LOG),
+    DEFAULT(Material.DIRT),
+    CUSTOM(Material.DIRT);
+    //DEFAULT(null),
+    //CUSTOM(null);
 
     Material material;
 
