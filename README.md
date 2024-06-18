@@ -1,14 +1,16 @@
 # Hey there!
-This is a update for aleksilassila's original "Home islands system" to make it work on 1.20.6 Spigot Servers.
-The whole plugin, from installation to actual features, works now on the 1.20.6 version. 
+This is a update for aleksilassila's original "Home islands system" to make it work on modern Spigot Servers.
+The whole plugin, from installation to actual features, will now function on the 1.20.6 and 1.21 Spigot Version. 
 Missing Biomes have been added.
 Java has been updated.
 And so on.
 
 **BUT** I am only a fresh beginner with Java and coding in general, so I will not be able to gurantee that everything works as intended.
+So I cannot be held accountable, incase a nuclear bomb suddenly manifests in your RAM or similar.
 
 ## You will need the following
-You now need to use Java 17 or above for your Minecraft server. So be sure to update your Java accordingly! 
+You now need to use Java 22 or above for your Minecraft server. So be sure to update your Java accordingly! 
+Having WorldEdit and a World-Managment Plugin will be helpful aswell.
 
 **Now back to the original Description!**
 # Islands
@@ -62,7 +64,8 @@ You can google more about how to schedule reboots and resets.
 
 ## Screenshots
 
-![Shapes](screenshots/islandTypes/shapes_showcase.png?raw=true)
+~~![Shapes](screenshots/islandTypes/shapes_showcase.png?raw=true)~~
+_The Shapes are no longer supported by the Base Plugin._
 
 ### Functionality
 Available biomes are fetched from `islandsSource` world. 
@@ -90,16 +93,6 @@ Comes with a handy gui that players can use to visit other public islands!
 Shiny islands are "official" islands owned by the server.
 
 ![Island Protection](screenshots/functionality/visit_gui.png?raw=true)
-
-Custom island shapes can be created to enhance the look of your islands!
-
-![Island Shapes](screenshots/functionality/shapes.png?raw=true)
-
-![Island Shapes](screenshots/islandTypes/shape_normal.png?raw=true)
-
-Economy integration allows you to set prices for different islands
-
-![Island Shapes](screenshots/functionality/create_gui_size.png?raw=true)
 
 Admin tools help admins moderate their servers by giving them access to all islands via GUI
 
