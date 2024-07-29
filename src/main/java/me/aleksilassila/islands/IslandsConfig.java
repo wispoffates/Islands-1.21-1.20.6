@@ -337,7 +337,7 @@ public enum IslandsConfig {
         public int homeId;
         public boolean isPublic;
         public int y;
-        public int[] spawnPosition;
+        protected Location spawnPosition;
         public boolean isSpawn;
 
         boolean shouldUpdate = false;
@@ -359,10 +359,17 @@ public enum IslandsConfig {
             this.isPublic = fc.getBoolean(islandId + ".public", false);
             this.biome = Biome.valueOf(fc.getString(islandId + ".biome", "PLAINS"));
             this.homeId = fc.getInt(islandId + ".home", -1);
-            this.spawnPosition = new int[] {
-                    fc.getInt(islandId + ".spawnPoint.x", 0),
-                    fc.getInt(islandId + ".spawnPoint.z", 0)
-            };
+            this.spawnPosition = new Location(Islands.islandsWorld, 
+                fc.getInt(islandId + ".spawnPoint.x", 0),  
+                fc.getInt(islandId + ".spawnPoint.y", Islands.islandsWorld.getMinHeight()), 
+                fc.getInt(islandId + ".spawnPoint.z", 0),
+                fc.getInt(islandId + ".spawnPoint.yaw", 0),
+                fc.getInt(islandId + ".spawnPoint.pitch", 0) 
+            );
+            //failsafe in case spawn Y isnt set
+            if(this.spawnPosition.getY() == Islands.islandsWorld.getMinHeight()) {
+                this.spawnPosition.setY(Islands.islandsSourceWorld.getHighestBlockYAt(this.spawnPosition.getBlockX(), this.spawnPosition.getBlockZ()));
+            }
             this.y = fc.getInt(islandId + ".y");
             this.isSpawn = fc.getBoolean(islandId + ".isSpawn", false);
 
@@ -389,10 +396,11 @@ public enum IslandsConfig {
             this.claimId = GPWrapper.enabled ? createClaims(xIndex, zIndex, size, uuid) : -1;
 
             int[][] ic = getIslandCorner(xIndex, zIndex, size);
-            this.spawnPosition = new int[] {
-                    ic[0][0] + size / 2,
-                    ic[0][1] + size / 2
-            };
+            this.spawnPosition = new Location(Islands.islandsWorld, 
+                ic[0][0] + size / 2,  
+                Islands.islandsWorld.getHighestBlockYAt(ic[0][0] + size / 2, ic[0][1] + size / 2), 
+                ic[0][1] + size / 2
+            );
 
             this.y = getIslandY(xIndex, zIndex);
 
@@ -422,8 +430,11 @@ public enum IslandsConfig {
             getConfig().set(islandId + ".y", y);
             getConfig().set(islandId + ".z", ic[0][1]);
 
-            getConfig().set(islandId + ".spawnPoint.x", spawnPosition[0]);
-            getConfig().set(islandId + ".spawnPoint.z", spawnPosition[1]);
+            getConfig().set(islandId + ".spawnPoint.x", spawnPosition.getX());
+            getConfig().set(islandId + ".spawnPoint.y", spawnPosition.getY());
+            getConfig().set(islandId + ".spawnPoint.z", spawnPosition.getZ());
+            getConfig().set(islandId + ".spawnPoint.yaw", spawnPosition.getYaw());
+            getConfig().set(islandId + ".spawnPoint.pitch", spawnPosition.getPitch());
 
             getConfig().set(islandId + ".UUID", uuid == null ? "Server" : uuid.toString());
             getConfig().set(islandId + ".name", name);
@@ -437,20 +448,14 @@ public enum IslandsConfig {
             getConfig().set(islandId + ".isSpawn", isSpawn);
         }
 
-        public void setSpawnPosition(int x, int z) {
-            spawnPosition = new int[] {x, z};
+        public void setSpawnPosition(Location position) {
+            spawnPosition = position;
             shouldUpdate = true;
         }
 
         @NotNull
         public Location getIslandSpawn() {
-            int highest = Islands.islandsWorld.getHighestBlockAt(spawnPosition[0], spawnPosition[1]).getY();
-            return new Location(
-                    Islands.islandsWorld,
-                    spawnPosition[0],
-                    highest + 80,
-                    spawnPosition[1]
-            );
+            return spawnPosition.clone();
         }
 
         public void unnameIsland() {
@@ -501,12 +506,12 @@ public enum IslandsConfig {
 
             Claim c = GPWrapper.gp.dataStore.getClaimAt(new Location(
                     Islands.islandsWorld,
-                    spawnPosition[0],
-                    50,
-                    spawnPosition[1]), true, false, null);
+                    spawnPosition.getX(),
+                    spawnPosition.getY(),
+                    spawnPosition.getZ()), true, false, null);
             GPWrapper.gp.dataStore.resizeClaim(c,
                     ic[0][0], ic[1][0],
-                    0, 255,
+                    0, Islands.islandsWorld.getMaxHeight(),
                     ic[0][1], ic[1][1], Bukkit.getPlayer(uuid));
         }
 

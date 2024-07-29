@@ -33,7 +33,7 @@ public class InfoSubcommand extends AbstractIslandsWorldSubcommand {
             }
         }
 
-        Messages.send(player, "info.ISLAND_INFO_SPAWNPOINT", island.spawnPosition[0], island.spawnPosition[1]);
+        Messages.send(player, "info.ISLAND_INFO_SPAWNPOINT", island.getIslandSpawn().getBlockX(), island.getIslandSpawn().getBlockY(), island.getIslandSpawn().getBlockZ());
         Messages.send(player, "info.ISLAND_INFO_SIZE", island.size, Islands.instance.parseIslandSize(island.size));
         Messages.send(player, "info.ISLAND_INFO_BIOME", island.biome);
 
