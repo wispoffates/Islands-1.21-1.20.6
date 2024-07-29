@@ -94,7 +94,8 @@ public enum IslandGeneration {
 
         // Get island center y. Center block will be in the middle the first block
         // that is not burnable
-        int centerY = 100;
+        //Start the height search at the hightest block and not 100
+        int centerY = sourceLocation.getWorld().getHighestBlockYAt(sourceLocation);
         while (true) {
             int centerX = (int) (sourceLocation.getBlockX() + ((double) updatedIsland.size) / 2.0);
             int centerZ = (int) (sourceLocation.getBlockZ() + ((double) updatedIsland.size) / 2.0);
@@ -111,6 +112,7 @@ public enum IslandGeneration {
         }
 
         sourceLocation.setY(centerY);
+        plugin.getLogger().info("Creating Island for " + player.getName() + " copying from location: " + sourceLocation.toString());
 
         CopyTask task = new CopyTask(player, sourceLocation, updatedIsland, true, shouldClearArea, !noShape, oldSize);
 
@@ -388,7 +390,7 @@ public enum IslandGeneration {
                 Biome upBiome = copyLocation.add(x, island.size, z).getSourceBlock().getBiome();
                 Biome downBiome = copyLocation.add(x, -maxYAdd, z).getSourceBlock().getBiome();
                 Block ib = copyLocation.add(x, 0, z).getIslandBlock();
-                for (int y = ib.getY() + island.size; y < 256; y++)
+                for (int y = ib.getY() + island.size; y < ib.getWorld().getMaxHeight(); y++)
                     Islands.islandsWorld.setBiome(ib.getX(), y, ib.getZ(), upBiome);
                 for (int y = ib.getY() - maxYAdd; y > 0; y--)
                     Islands.islandsWorld.setBiome(ib.getX(), y, ib.getZ(), downBiome);
@@ -417,7 +419,7 @@ public enum IslandGeneration {
         }
 
         void clearBiome(Block block, Biome biome) {
-            for (int y = 0; y < 256; y++) {
+            for (int y = 0; y < block.getWorld().getMaxHeight(); y++) {
                 block.getWorld().setBiome(block.getX(), y, block.getZ(), biome);
             }
         }

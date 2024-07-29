@@ -54,6 +54,8 @@ public class CreateSubcommand extends AbstractCreateSubcommands {
             return;
         }
 
+        player.sendMessage(Messages.get("success.BEGIN_BIOME_SEARCH"));
+
         Biome targetBiome;
 
         if (args[0].equalsIgnoreCase("random") && !isRandomBiomeDisabled()) {

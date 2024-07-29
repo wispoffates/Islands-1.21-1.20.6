@@ -11,11 +11,7 @@ import java.util.Random;
 
 public class Utils {
     public static int getHighestYAt(World world, int x, int z) {
-        for (int y = 256; y > 0; y--) {
-            if (!world.getBlockAt(x, y, z).isEmpty()) return y;
-        }
-
-        return -1;
+        return world.getHighestBlockYAt(x, z);
     }
 
     @Nullable
