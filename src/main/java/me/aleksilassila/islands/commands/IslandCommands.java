@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.logging.Level;
 
 public class IslandCommands extends ChatUtils implements TabExecutor {
     private final Islands plugin;
@@ -110,6 +111,7 @@ public class IslandCommands extends ChatUtils implements TabExecutor {
                 return true;
             } catch (Exception e) {
                 player.sendMessage(Messages.get("error.ERROR"));
+                plugin.getLogger().log(Level.SEVERE, "Error running command.", e);
                 return true;
             }
         }

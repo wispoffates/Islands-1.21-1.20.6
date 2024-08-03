@@ -1,5 +1,6 @@
 package me.aleksilassila.islands;
 
+import me.aleksilassila.islands.generation.CopyTask;
 import me.aleksilassila.islands.generation.IslandGeneration;
 import me.aleksilassila.islands.utils.BiomeMaterials;
 import me.aleksilassila.islands.utils.Permissions;
@@ -233,7 +234,6 @@ public enum IslandsConfig {
         return null;
     }
 
-    @Nullable
     public static int getLowestHome(UUID uuid) {
         List<Entry> allIslands = getOwnedIslands(uuid);
 
@@ -270,9 +270,9 @@ public enum IslandsConfig {
         int relativeY = y - getIslandY(xIndex, zIndex);
 
         if (relativeY <= e.size / 2d) {
-            return IslandGeneration.isBlockInIslandSphere(relativeX, relativeY, relativeZ, e.size);
+            return CopyTask.isBlockInIslandSphere(relativeX, relativeY, relativeZ, e.size);
         } else {
-            return IslandGeneration.isBlockInIslandCylinder(relativeX, relativeZ, e.size);
+            return CopyTask.isBlockInIslandCylinder(relativeX, relativeZ, e.size);
         }
     }
 
@@ -368,7 +368,7 @@ public enum IslandsConfig {
             );
             //failsafe in case spawn Y isnt set
             if(this.spawnPosition.getY() == Islands.islandsWorld.getMinHeight()) {
-                this.spawnPosition.setY(Islands.islandsSourceWorld.getHighestBlockYAt(this.spawnPosition.getBlockX(), this.spawnPosition.getBlockZ()));
+                this.spawnPosition.setY(Islands.islandsWorld.getHighestBlockYAt(this.spawnPosition.getBlockX(), this.spawnPosition.getBlockZ()));
             }
             this.y = fc.getInt(islandId + ".y");
             this.isSpawn = fc.getBoolean(islandId + ".isSpawn", false);

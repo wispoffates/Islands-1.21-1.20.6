@@ -4,16 +4,11 @@ import me.aleksilassila.islands.GUIs.CreateGUI;
 import me.aleksilassila.islands.Islands;
 import me.aleksilassila.islands.IslandsConfig;
 import me.aleksilassila.islands.commands.AbstractCreateSubcommands;
-import me.aleksilassila.islands.generation.Biomes;
 import me.aleksilassila.islands.utils.Messages;
 import me.aleksilassila.islands.utils.Permissions;
 import me.aleksilassila.islands.utils.Utils;
-import org.bukkit.Location;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
-
-import java.util.HashMap;
-import java.util.List;
 
 public class CreateSubcommand extends AbstractCreateSubcommands {
     private final Islands plugin = Islands.instance;
@@ -29,8 +24,6 @@ public class CreateSubcommand extends AbstractCreateSubcommands {
             Messages.send(player, "usage.CREATE");
             return;
         }
-
-        HashMap<Biome, List<Location>> availableLocations = Biomes.INSTANCE.availableLocations;
 
         int previousIslands = IslandsConfig.getOwnedIslands(player.getUniqueId()).size();
 
@@ -53,9 +46,6 @@ public class CreateSubcommand extends AbstractCreateSubcommands {
             player.sendMessage(Messages.get("error.INSUFFICIENT_FUNDS"));
             return;
         }
-
-        player.sendMessage(Messages.get("success.BEGIN_BIOME_SEARCH"));
-
         Biome targetBiome;
 
         if (args[0].equalsIgnoreCase("random") && !isRandomBiomeDisabled()) {
@@ -67,12 +57,6 @@ public class CreateSubcommand extends AbstractCreateSubcommands {
                 player.sendMessage(Messages.get("error.NO_BIOME_FOUND"));
                 return;
             }
-
-
-            if (!availableLocations.containsKey(targetBiome)) {
-                player.sendMessage(Messages.get("error.NO_LOCATIONS_FOR_BIOME"));
-                return;
-            }
         }
 
         String islandId;
@@ -81,7 +65,6 @@ public class CreateSubcommand extends AbstractCreateSubcommands {
             islandId = plugin.createNewIsland(targetBiome, islandSize, player);
         } catch (IllegalArgumentException e) {
             player.sendMessage(Messages.get("error.NO_LOCATIONS_FOR_BIOME"));
-
             return;
         }
 
@@ -91,7 +74,8 @@ public class CreateSubcommand extends AbstractCreateSubcommands {
         }
 
         if (plugin.econ != null) pay(player, plugin.islandPrices.getOrDefault(islandSize, 0.0));
-        player.sendTitle(Messages.get("success.ISLAND_GEN_TITLE"), Messages.get("success.ISLAND_GEN_SUBTITLE"), 10, 20 * 7, 10);
+        //player.sendTitle(Messages.get("success.ISLAND_GEN_TITLE"), Messages.get("success.ISLAND_GEN_SUBTITLE"), 10, 20 * 7, 10);
+        player.sendMessage(Messages.get("success.ISLAND_GEN_TITLE"), Messages.get("success.ISLAND_GEN_SUBTITLE"));
     }
 
 

@@ -4,7 +4,6 @@ import me.aleksilassila.islands.GUIs.CreateGUI;
 import me.aleksilassila.islands.Islands;
 import me.aleksilassila.islands.IslandsConfig;
 import me.aleksilassila.islands.commands.AbstractCreateSubcommands;
-import me.aleksilassila.islands.generation.Biomes;
 import me.aleksilassila.islands.utils.Messages;
 import me.aleksilassila.islands.utils.Permissions;
 import me.aleksilassila.islands.utils.Utils;
@@ -88,12 +87,6 @@ public class RecreateSubcommand extends AbstractCreateSubcommands {
 
             if (targetBiome == null) {
                 player.sendMessage(Messages.get("error.NO_BIOME_FOUND"));
-                return;
-            }
-
-
-            if (!Biomes.INSTANCE.availableLocations.containsKey(targetBiome)) {
-                player.sendMessage(Messages.get("error.NO_LOCATIONS_FOR_BIOME"));
                 return;
             }
         }

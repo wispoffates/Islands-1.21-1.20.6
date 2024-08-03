@@ -5,18 +5,16 @@ import me.aleksilassila.islands.IslandsConfig;
 import me.aleksilassila.islands.generation.Biomes;
 import me.aleksilassila.islands.utils.Messages;
 import me.aleksilassila.islands.utils.Permissions;
-import org.bukkit.Location;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 
 public abstract class AbstractCreateSubcommands extends Subcommand {
     protected abstract void openGui(Player player);
-    abstract protected void runCommand(Player player, String[] args, boolean confirmed, int islandSize);
+    protected abstract void runCommand(Player player, String[] args, boolean confirmed, int islandSize);
 
     protected boolean isRandomBiomeDisabled() {
         return Islands.instance.getConfig().getBoolean("disableRandomBiome");
@@ -64,12 +62,11 @@ public abstract class AbstractCreateSubcommands extends Subcommand {
         List<String> availableArgs = new ArrayList<>();
 
         if (args.length == 1) {
-            HashMap<Biome, List<Location>> availableLocations = Biomes.INSTANCE.availableLocations;
 
             if (!isRandomBiomeDisabled())
                 availableArgs.add("RANDOM");
 
-            for (Biome biome : availableLocations.keySet()) {
+            for (Biome biome : Biomes.INSTANCE.getBiomes()) {
                 availableArgs.add(biome.name());
             }
 

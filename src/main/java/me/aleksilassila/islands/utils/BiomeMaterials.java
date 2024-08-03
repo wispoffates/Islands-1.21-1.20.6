@@ -54,7 +54,7 @@ public enum BiomeMaterials {
     DEEP_LUKEWARM_OCEAN(Material.FIRE_CORAL),
     DEEP_COLD_OCEAN(Material.WATER_BUCKET),
     DEEP_FROZEN_OCEAN(Material.WATER_BUCKET),
-    THE_VOID(Material.END_PORTAL),
+    THE_VOID(Material.BREAD),
     SUNFLOWER_PLAINS(Material.SUNFLOWER),
     DESERT_LAKES(Material.SAND),
     GRAVELLY_MOUNTAINS(Material.STONE),
@@ -94,7 +94,7 @@ public enum BiomeMaterials {
     OLD_GROWTH_SPRUCE_TAIGA(Material.SPRUCE_LOG),
     WINDSWEPT_SAVANNA(Material.ACACIA_LOG),
     DRIPSTONE_CAVES(Material.POINTED_DRIPSTONE),
-    LUSH_CAVES(Material.CAVE_VINES),
+    LUSH_CAVES(Material.VINE),
     MEADOW(Material.GRASS_BLOCK),
     GROVE(Material.SPRUCE_LOG),
     SNOWY_SLOPES(Material.SNOW_BLOCK),
@@ -116,5 +116,13 @@ public enum BiomeMaterials {
 
     public Material getMaterial() {
         return this.material != null ? this.material : Material.DIRT;
+    }
+
+    public static BiomeMaterials of(String name) {
+        try {
+            return BiomeMaterials.valueOf(name);
+        } catch(IllegalArgumentException e) {
+            return DEFAULT;
+        }
     }
 }

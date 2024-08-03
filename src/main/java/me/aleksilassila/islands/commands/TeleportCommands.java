@@ -224,7 +224,7 @@ public class TeleportCommands {
                 return true;
             }
 
-            if (IslandGeneration.INSTANCE.queue.size() > 0
+            if (!IslandGeneration.INSTANCE.queue.isEmpty()
                     && IslandGeneration.INSTANCE.queue.get(0).getIslandId().equals(island.islandId)
                     && !unfinishedIslandTeleports) {
                 Messages.send(player, "error.ISLAND_UNFINISHED");
@@ -283,7 +283,7 @@ public class TeleportCommands {
                 }
 
                 Location animalLocation = location.clone();
-                animalLocation.setY(Utils.getHighestYAt(Islands.islandsWorld, location.getBlockX(), location.getBlockZ()) + 2);
+                animalLocation.setY(Utils.getHighestYAt(Islands.islandsWorld, location.getBlockX(), location.getBlockZ()) + 2.0);
 
                 for (Entity entity : entities) {
                     entity.teleport(animalLocation);

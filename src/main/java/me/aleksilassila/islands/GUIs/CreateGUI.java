@@ -8,14 +8,12 @@ import me.aleksilassila.islands.generation.Biomes;
 import me.aleksilassila.islands.utils.BiomeMaterials;
 import me.aleksilassila.islands.utils.Messages;
 import me.aleksilassila.islands.utils.Permissions;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 
 public class CreateGUI extends PageGUI {
@@ -26,7 +24,7 @@ public class CreateGUI extends PageGUI {
     private final double recreateCost;
     private Double oldCost = null;
 
-    private final int PAGE_HEIGHT = 4; // < 1
+    private static final int PAGE_HEIGHT = 4; // < 1
 
     public CreateGUI(Islands plugin, Player player, String subcommand) {
         this.plugin = plugin;
@@ -55,16 +53,11 @@ public class CreateGUI extends PageGUI {
     private List<StaticPane> availableIslandPanes() {
         List<StaticPane> panes = new ArrayList<>();
 
-        HashMap<Biome, List<Location>> availableLocations = Biomes.INSTANCE.availableLocations;
-
-        List<Biome> sortedSet = new ArrayList<>(availableLocations.keySet());
-
-        sortedSet.sort(Comparator.comparingDouble(a -> BiomeMaterials.valueOf(a.name()).getMaterial().name().charAt(0) + 1 / (double) BiomeMaterials.valueOf(a.name()).getMaterial().name().charAt(1)));
-
+        List<Biome> allowedBiomes = Biomes.INSTANCE.getBiomes();
         StaticPane pane = new StaticPane(0, 0, 9, PAGE_HEIGHT - 1);
 
         int itemCount = 0;
-        for (Biome biome : sortedSet) {
+        for (Biome biome : allowedBiomes) {
             if (itemCount == 0 && !plugin.getConfig().getBoolean("disableRandomBiome")) {
                 pane.addItem(new GuiItem(
                         createGuiItem(
@@ -73,9 +66,9 @@ public class CreateGUI extends PageGUI {
                                 true,
                                 Messages.get("gui.create.BIOME_LORE", 0)
                         ),
-                        inventoryClickEvent -> {
-                            getSizeGui(null).show(inventoryClickEvent.getWhoClicked());
-                        }), 0, 0);
+                        inventoryClickEvent -> 
+                            getSizeGui(null).show(inventoryClickEvent.getWhoClicked())
+                        ), 0, 0);
 
                 itemCount++;
             }
@@ -87,18 +80,16 @@ public class CreateGUI extends PageGUI {
 
             pane.addItem(new GuiItem(
                     createGuiItem(
-                            BiomeMaterials.valueOf(biome.name()).getMaterial(),
+                            BiomeMaterials.of(biome.name()).getMaterial(),
                             Messages.get("gui.create.BIOME_NAME", biome.name()),
                             false,
-                            Messages.get("gui.create.BIOME_LORE", availableLocations.get(biome).size())
+                            Messages.get("gui.create.BIOME_LORE", 0)
                     ),
-                    event -> {
-                        getSizeGui(biome).show(event.getWhoClicked());
-                    }), (itemCount % (9 * (PAGE_HEIGHT - 1))) % 9, (itemCount % (9 * (PAGE_HEIGHT - 1))) / 9);
+                    event -> getSizeGui(biome).show(event.getWhoClicked())), (itemCount % (9 * (PAGE_HEIGHT - 1))) % 9, (itemCount % (9 * (PAGE_HEIGHT - 1))) / 9);
             itemCount++;
         }
 
-        if (pane.getItems().size() > 0) panes.add(pane);
+        if (!pane.getItems().isEmpty()) panes.add(pane);
 
         return panes;
     }
@@ -167,7 +158,7 @@ public class CreateGUI extends PageGUI {
             itemCount++;
         }
 
-        if (pane.getItems().size() > 0) panes.add(pane);
+        if (!pane.getItems().isEmpty()) panes.add(pane);
 
         return panes;
     }

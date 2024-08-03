@@ -20,12 +20,8 @@ import org.bukkit.Difficulty;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
-import org.bukkit.WorldType;
 import org.bukkit.block.Biome;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -48,19 +44,16 @@ public class Islands extends JavaPlugin {
     public static Islands instance;
 
     public static World islandsWorld;
-    public static World islandsSourceWorld;
+    //public static World islandsSourceWorld;
     public static World wildernessWorld;
-
-    private FileConfiguration biomesCache;
-    private File biomesCacheFile;
 
     public Permission perms = null;
     public Economy econ = null;
     public WorldEditPlugin worldEdit = null;
 
     public Set<Player> playersWithNoFall = new HashSet<>();
-    public HashMap<Player, Location> wildernessPositions = new HashMap<>();
-    public HashMap<String, ConfirmItem> confirmations;
+    public Map<Player, Location> wildernessPositions = new HashMap<>();
+    public Map<String, ConfirmItem> confirmations;
     public Map<String, Long> teleportCooldowns;
     public Map<Integer, Double> islandPrices;
 
@@ -103,10 +96,7 @@ public class Islands extends JavaPlugin {
             }
         } else saveDefaultConfig();
 
-        initBiomesCache();
-
         islandsWorld = getIslandsWorld();
-        islandsSourceWorld = getSourceWorld();
 
         if (!getConfig().getBoolean("disableWilderness")) {
             wildernessWorld = getWilderness();
@@ -283,27 +273,6 @@ public class Islands extends JavaPlugin {
         return world;
     }
 
-    World getSourceWorld() {
-        boolean exists = worldExists("islandsSource");
-
-        WorldCreator wc = new WorldCreator("islandsSource");
-        World world;
-
-        if (exists) {
-            getLogger().info("Islands source world set to islandsSource");
-            world = wc.createWorld();
-        } else {
-            getLogger().info("No islands source world found. Creating one...");
-
-            wc.environment(World.Environment.NORMAL);
-            wc.type(WorldType.NORMAL);
-            wc.generateStructures(false);
-            world = wc.createWorld();
-            world.setDifficulty(Difficulty.PEACEFUL);
-        }
-
-        return world;
-    }
 
     private boolean setupPermissions() {
         if (getServer().getPluginManager().getPlugin("vault") == null) return false;
@@ -360,37 +329,6 @@ public class Islands extends JavaPlugin {
         return sizes;
     }
 
-    public FileConfiguration getBiomesCache() {
-        return this.biomesCache;
-    }
-
-    public void saveBiomesConfig() {
-        try {
-            biomesCache.save(biomesCacheFile);
-        } catch (IOException e) {
-            getLogger().severe("Unable to save biomesConfig");
-        }
-    }
-
-    public void clearBiomesCache() {
-        biomesCacheFile.delete();
-        initBiomesCache();
-    }
-
-    private void initBiomesCache() {
-        biomesCacheFile = new File(getDataFolder(), "biomeCache.yml");
-        if (!biomesCacheFile.exists()) {
-            biomesCacheFile.getParentFile().mkdirs();
-            saveResource("biomeCache.yml", false);
-         }
-
-        biomesCache = new YamlConfiguration();
-        try {
-            biomesCache.load(biomesCacheFile);
-        } catch (IOException | InvalidConfigurationException e) {
-            e.printStackTrace();
-        }
-    }
 
     private boolean validateConfig() {
         if (getConfig().getDefaults() == null) {
