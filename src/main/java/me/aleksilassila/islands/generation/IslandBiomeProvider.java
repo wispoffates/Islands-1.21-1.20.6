@@ -30,37 +30,67 @@ import org.bukkit.generator.BiomeProvider;
 import org.bukkit.generator.WorldInfo;
 import org.jetbrains.annotations.NotNull;
 
+import me.aleksilassila.islands.Islands;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class SingleBiomeProvider extends BiomeProvider {
+/**
+ * Replaces most biomes of the default generator with the specified biome.  
+ * However it leaves "undesirable" biomes such as oceans in place so that the location 
+ * suitability checks can avoid them.
+ */
+public class IslandBiomeProvider extends BiomeProvider {
 
     @NotNull
     private final Biome biome;
-    private final Biome OCEAN = Biome.OCEAN;
+    private static final List<Biome>OCEAN_BIOMES = Arrays.asList(
+      Biome.COLD_OCEAN, Biome.DEEP_COLD_OCEAN,
+      Biome.OCEAN, Biome.DEEP_OCEAN, 
+      Biome.FROZEN_OCEAN, Biome.DEEP_FROZEN_OCEAN,
+      Biome.WARM_OCEAN, Biome.LUKEWARM_OCEAN, Biome.DEEP_LUKEWARM_OCEAN,
+      Biome.MANGROVE_SWAMP
+    );
 
-    public SingleBiomeProvider(@NotNull Biome biome) {
+    private final BiomeProvider vanilla;
+    private final List<Biome> seen = Collections.synchronizedList(new ArrayList<>());
+
+    public IslandBiomeProvider(@NotNull Biome biome, BiomeProvider vanilla) {
         if(biome==null) 
             throw new IllegalArgumentException("Biome cannot be null!");
 
         this.biome = biome;
+        this.vanilla = vanilla;
     }
 
     @NotNull
     @Override
     public Biome getBiome(@NotNull WorldInfo worldInfo, int x, int y, int z, @NotNull BiomeParameterPoint biomeParameterPoint) {
-        return getBiome(worldInfo, x, y, z);
+        Biome original = vanilla.getBiome(worldInfo, x, y, z, biomeParameterPoint);
+        if(!seen.contains(original)) {
+            seen.add(original);
+            Islands.instance.getLogger().info("First time seen :: " + original);
+        }
+        if(OCEAN_BIOMES.contains(original)) {
+            return original;
+        } else {
+            return biome;
+        }
     }
 
     @NotNull
     @Override
     public Biome getBiome(@NotNull WorldInfo worldInfo, int x, int y, int z) {
-        return biome;
+        return biome; //this should not be called as the other exists
     }
 
     @NotNull
     @Override
     public List<Biome> getBiomes(@NotNull WorldInfo worldInfo) {
-        return Collections.singletonList(biome);
+        List retList = new ArrayList<>(OCEAN_BIOMES);
+        retList.add(biome);
+        return retList;
     }
 }

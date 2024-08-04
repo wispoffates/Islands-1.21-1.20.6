@@ -15,6 +15,7 @@ import org.bukkit.WorldType;
 import org.bukkit.block.Biome;
 import org.bukkit.block.data.type.Switch.Face;
 import org.bukkit.entity.Player;
+import org.bukkit.generator.BiomeProvider;
 
 import java.io.File;
 import java.util.*;
@@ -45,10 +46,10 @@ public enum IslandGeneration {
 
         WorldCreator wc = new WorldCreator(safeName);
         wc.environment(World.Environment.NORMAL);
-        wc.type(WorldType.LARGE_BIOMES);
+        wc.type(WorldType.NORMAL);
         wc.generateStructures(false);
         wc.keepSpawnInMemory(false);
-        wc.biomeProvider(new SingleBiomeProvider(biome));
+        wc.biomeProvider(new IslandBiomeProvider(biome,Islands.wildernessWorld.vanillaBiomeProvider()));
         World world = wc.createWorld();
         world.setDifficulty(Difficulty.PEACEFUL);
         
@@ -70,8 +71,8 @@ public enum IslandGeneration {
             sourceLocation = new Location(sourceWorld, random.nextInt(Biomes.INSTANCE.getBiomeSearchArea())-updatedIsland.size, 0, random.nextInt(Biomes.INSTANCE.getBiomeSearchArea())-updatedIsland.size);
             //check if we have a suitable location break out of the loop
             double waterPercent = Biomes.INSTANCE.isSuitableLocation(sourceLocation,updatedIsland.biome);
-            if(waterPercent<0.5) {
-                plugin.getLogger().info("Found suitable location after " + i+1 + " attempts.");
+            if(waterPercent<0.25) {
+                plugin.getLogger().info("Found suitable location after " + i+1 + " attempts. " + waterPercent + " incorrect biome.");
                 break;
             } else {
                 plugin.getLogger().info("Rejected location " + i + " with water percentage of " + waterPercent);

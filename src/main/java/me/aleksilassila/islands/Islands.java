@@ -44,7 +44,6 @@ public class Islands extends JavaPlugin {
     public static Islands instance;
 
     public static World islandsWorld;
-    //public static World islandsSourceWorld;
     public static World wildernessWorld;
 
     public Permission perms = null;

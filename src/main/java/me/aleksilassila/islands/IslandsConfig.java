@@ -1,7 +1,6 @@
 package me.aleksilassila.islands;
 
 import me.aleksilassila.islands.generation.CopyTask;
-import me.aleksilassila.islands.generation.IslandGeneration;
 import me.aleksilassila.islands.utils.BiomeMaterials;
 import me.aleksilassila.islands.utils.Permissions;
 import me.ryanhamshire.GriefPrevention.Claim;
