@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 
 public class ClearSubcommand extends AbstractIslandsWorldSubcommand {
     @Override
-    protected void runCommand(Player player, String[] args, boolean confirmed, IslandsConfig.Entry island) {
+    protected void runCommand(Player player, String[] args, boolean confirmed, IslandsConfig.IslandEntry island) {
         if (args.length != 0) {
             Messages.send(player, "usage.CLEAR");
             return;

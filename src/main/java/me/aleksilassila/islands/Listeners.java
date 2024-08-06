@@ -68,9 +68,19 @@ public class Listeners extends ChatUtils implements Listener {
             //fall back to spawn worlds spawn location
             if(this.spawnWorld.isEmpty()) {
                 //no spawn world use IslandConfig spawn location
-                this.spawnLocation = IslandsConfig.spawnIsland.spawnPosition;
+                if(IslandsConfig.spawnIsland != null) {
+                    this.spawnLocation = IslandsConfig.spawnIsland.getIslandSpawn();
+                } else {
+                    this.spawnLocation = Islands.islandsWorld.getSpawnLocation();        
+                }
             } else {
-                this.spawnLocation = Bukkit.getWorld(this.spawnWorld).getSpawnLocation();
+                World w = Bukkit.getWorld(this.spawnWorld);
+                if(w != null) {
+                    this.spawnLocation = w.getSpawnLocation();
+                } else {
+                    Islands.instance.getLogger().warning("Specified spawn world does not exist! :: " + spawnWorld);
+                    this.spawnLocation = Islands.islandsWorld.getSpawnLocation();  
+                }
             }
         }
         //velocity
@@ -127,7 +137,8 @@ public class Listeners extends ChatUtils implements Listener {
 
     @EventHandler
     public void onCreatureSpawn(CreatureSpawnEvent event) {
-        if (event.getSpawnReason().equals(CreatureSpawnEvent.SpawnReason.NATURAL) && event.getEntity().getWorld().equals(Islands.islandsWorld) && disableMobs) {
+        if ((event.getSpawnReason().equals(CreatureSpawnEvent.SpawnReason.NATURAL) || event.getSpawnReason().equals(CreatureSpawnEvent.SpawnReason.RAID))
+            && event.getEntity().getWorld().equals(Islands.islandsWorld) && disableMobs) {
             event.setCancelled(true);
         }
     }
@@ -147,61 +158,66 @@ public class Listeners extends ChatUtils implements Listener {
     public void onDamageEvent(EntityDamageEvent e) {
         if (e.getEntity() instanceof Player) {
             Player player = (Player) e.getEntity();
-
             if (e.getCause().equals(EntityDamageEvent.DamageCause.VOID) && player.getWorld().equals(Islands.islandsWorld) && voidTeleport) {
                 World targetWorld;
 
-                //check if we should use velocity
-                if(this.useVelocity && !this.velocityServer.isEmpty()) {
-                    //failsafe - If the server we are transporting too is down or too slow teleport the player to spawn
-                    this.teleportAttempts.putIfAbsent(player.getUniqueId(), 0);
-                    Integer attempts = this.teleportAttempts.get(player.getUniqueId());
-                    if(attempts.intValue() > 30) {
-                        player.sendMessage("Failed to transfer to the Wilderness server!");
-                        player.teleport(this.spawnLocation);
-                        this.teleportAttempts.remove(player.getUniqueId());
+                synchronized(player) {
+                    //see if the player has all ready transfered
+                    if(!player.isOnline() && player.getWorld().equals(Islands.islandsWorld)) {
                         e.setCancelled(true);
                         return;
-                    } 
-                    this.teleportAttempts.put(player.getUniqueId(), attempts+1);
-                    //send message to veloicty server as player start transfer
-                    ByteArrayDataOutput out = ByteStreams.newDataOutput();
-                    out.writeUTF("Connect");
-                    out.writeUTF(this.velocityServer);
-                    player.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
-                    e.setCancelled(true);
-                    return;
+                    }
+                    //check if we should use velocity
+                    if(this.useVelocity && !this.velocityServer.isEmpty()) {
+                        //failsafe - If the server we are transporting too is down or too slow teleport the player to spawn
+                        this.teleportAttempts.putIfAbsent(player.getUniqueId(), 0);
+                        Integer attempts = this.teleportAttempts.get(player.getUniqueId());
+                        if(attempts.intValue() > 30) {
+                            player.sendMessage("Failed to transfer to the Wilderness server!");
+                            player.teleport(this.spawnLocation);
+                            this.teleportAttempts.remove(player.getUniqueId());
+                            e.setCancelled(true);
+                            return;
+                        }
+                        this.teleportAttempts.put(player.getUniqueId(), attempts+1);
+                        //send message to veloicty server as player start transfer
+                        ByteArrayDataOutput out = ByteStreams.newDataOutput();
+                        out.writeUTF("Connect");
+                        out.writeUTF(this.velocityServer);
+                        player.sendPluginMessage(plugin, "BungeeCord", out.toByteArray());
+                        e.setCancelled(true);
+                        return;
+                    }
+
+                    if (Islands.wildernessWorld == null) {
+                        targetWorld = plugin.getServer().getWorlds().get(0);
+                    } else {
+                        targetWorld = Islands.wildernessWorld;
+                    }
+
+                    Location location;
+                    if (preserveWildernessPositions && Islands.instance.wildernessPositions.containsKey(player)) {
+                        location = Islands.instance.wildernessPositions.get(player);
+                    } else {
+                        location = player.getLocation();
+
+                        double teleportMultiplier = plugin.getConfig().getInt("wildernessCoordinateMultiplier") <= 0
+                                ? 4.0 : plugin.getConfig().getInt("wildernessCoordinateMultiplier");
+
+                        location.setX(location.getBlockX() * teleportMultiplier);
+                        location.setZ(location.getBlockZ() * teleportMultiplier);
+                    }
+
+                    location.setWorld(targetWorld);
+                    location.setY(targetWorld.getHighestBlockYAt(location) + 40.0);
+
+                    player.teleport(location);
+
+                    player.sendTitle(Messages.get("success.WILDERNESS_TELEPORT_TITLE"),
+                            Messages.get("success.WILDERNESS_TELEPORT_SUBTITLE"), (int)(20 * 0.5), 20 * 5, (int)(20 * 0.5));
+
+                    plugin.playersWithNoFall.add(player);
                 }
-
-                if (Islands.wildernessWorld == null) {
-                    targetWorld = plugin.getServer().getWorlds().get(0);
-                } else {
-                    targetWorld = Islands.wildernessWorld;
-                }
-
-                Location location;
-                if (preserveWildernessPositions && Islands.instance.wildernessPositions.containsKey(player)) {
-                    location = Islands.instance.wildernessPositions.get(player);
-                } else {
-                    location = player.getLocation();
-
-                    int teleportMultiplier = plugin.getConfig().getInt("wildernessCoordinateMultiplier") <= 0
-                            ? 4 : plugin.getConfig().getInt("wildernessCoordinateMultiplier");
-
-                    location.setX(location.getBlockX() * teleportMultiplier);
-                    location.setZ(location.getBlockZ() * teleportMultiplier);
-                }
-
-                location.setWorld(targetWorld);
-                location.setY(targetWorld.getHighestBlockYAt(location) + 40);
-
-                player.teleport(location);
-
-                player.sendTitle(Messages.get("success.WILDERNESS_TELEPORT_TITLE"),
-                        Messages.get("success.WILDERNESS_TELEPORT_SUBTITLE"), (int)(20 * 0.5), 20 * 5, (int)(20 * 0.5));
-
-                plugin.playersWithNoFall.add(player);
-
                 e.setCancelled(true);
             } else if (e.getCause().equals(EntityDamageEvent.DamageCause.FALL) && plugin.playersWithNoFall.contains(player)) {
                 plugin.playersWithNoFall.remove(player);
@@ -220,9 +236,11 @@ public class Listeners extends ChatUtils implements Listener {
         if (event.getTo() == null) return;
         else l = event.getTo();
 
-        if (plugin.playersWithNoFall.contains(event.getPlayer())) {
-            if (l.getWorld() == Islands.wildernessWorld || (islandDamage && l.getWorld() == Islands.islandsWorld))
-                if (l.getBlock().isLiquid()) plugin.playersWithNoFall.remove(event.getPlayer());
+        if (plugin.playersWithNoFall.contains(event.getPlayer()) && 
+            l.getWorld() == Islands.wildernessWorld || (islandDamage && 
+            l.getWorld() == Islands.islandsWorld) &&
+            l.getBlock().isLiquid()) {
+                plugin.playersWithNoFall.remove(event.getPlayer());
         }
     }
 
@@ -244,9 +262,8 @@ public class Listeners extends ChatUtils implements Listener {
     @EventHandler
     private void onWorldChange(PlayerTeleportEvent event) {
         if (!preserveWildernessPositions) return;
-        if (Islands.wildernessWorld == event.getFrom().getWorld())
-            if (event.getTo() != null && Islands.wildernessWorld != event.getTo().getWorld()) {
-                Islands.instance.wildernessPositions.put(event.getPlayer(), event.getFrom());
-            }
+        if (Islands.wildernessWorld == event.getFrom().getWorld() && event.getTo() != null && Islands.wildernessWorld != event.getTo().getWorld()) {
+            Islands.instance.wildernessPositions.put(event.getPlayer(), event.getFrom());
+        }
     }
 }

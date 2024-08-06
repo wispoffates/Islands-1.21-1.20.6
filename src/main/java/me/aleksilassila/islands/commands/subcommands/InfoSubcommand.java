@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 
 public class InfoSubcommand extends AbstractIslandsWorldSubcommand {
     @Override
-    protected void runCommand(Player player, String[] args, boolean confirmed, IslandsConfig.Entry island) {
+    protected void runCommand(Player player, String[] args, boolean confirmed, IslandsConfig.IslandEntry island) {
         boolean extensiveInfo = player.hasPermission(Permissions.bypass.info);
 
         if (!extensiveInfo && !island.isPublic) {

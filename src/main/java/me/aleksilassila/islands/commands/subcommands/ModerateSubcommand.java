@@ -22,7 +22,7 @@ public class ModerateSubcommand extends Subcommand {
         }
 
         if (args[0].equalsIgnoreCase("teleport") || args[0].equalsIgnoreCase("tp")) {
-            IslandsConfig.Entry e = IslandsConfig.entries.get(args[1]);
+            IslandsConfig.IslandEntry e = IslandsConfig.entries.get(args[1]);
 
             if (e != null) {
                 e.teleport(player);

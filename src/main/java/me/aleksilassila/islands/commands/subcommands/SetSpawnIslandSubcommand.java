@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 
 public class SetSpawnIslandSubcommand extends AbstractIslandsWorldSubcommand {
     @Override
-    protected void runCommand(Player player, String[] args, boolean confirmed, IslandsConfig.Entry island) {
+    protected void runCommand(Player player, String[] args, boolean confirmed, IslandsConfig.IslandEntry island) {
         island.setSpawnIsland();
         player.sendMessage(Messages.get(island.isSpawn ? "success.SPAWN_ISLAND_CHANGED" : "success.SPAWN_ISLAND_REMOVED"));
     }

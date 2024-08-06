@@ -14,7 +14,7 @@ import java.util.UUID;
 
 public class GiveSubcommand extends AbstractIslandsWorldSubcommand {
     @Override
-    protected void runCommand(Player player, String[] args, boolean confirmed, IslandsConfig.Entry island) {
+    protected void runCommand(Player player, String[] args, boolean confirmed, IslandsConfig.IslandEntry island) {
         if ((args.length != 1 && !player.hasPermission(Permissions.bypass.give))
                 || (player.hasPermission(Permissions.bypass.give) && args.length > 1)) {
             Messages.send(player, "usage.GIVE");

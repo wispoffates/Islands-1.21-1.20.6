@@ -13,7 +13,7 @@ import java.util.List;
 
 public class NameSubcommand extends AbstractIslandsWorldSubcommand {
     @Override
-    protected void runCommand(Player player, String[] args, boolean confirmed, IslandsConfig.Entry island) {
+    protected void runCommand(Player player, String[] args, boolean confirmed, IslandsConfig.IslandEntry island) {
         if (args.length != 1) {
             Messages.send(player, "usage.NAME");
             return;

@@ -89,7 +89,7 @@ public class IslandBiomeProvider extends BiomeProvider {
     @NotNull
     @Override
     public List<Biome> getBiomes(@NotNull WorldInfo worldInfo) {
-        List retList = new ArrayList<>(OCEAN_BIOMES);
+        List<Biome> retList = new ArrayList<>(OCEAN_BIOMES);
         retList.add(biome);
         return retList;
     }

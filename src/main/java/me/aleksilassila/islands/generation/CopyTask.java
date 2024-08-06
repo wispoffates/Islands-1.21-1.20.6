@@ -21,7 +21,7 @@ import me.aleksilassila.islands.utils.Utils;
 
 public class CopyTask extends Task {
     private Player player;
-    private IslandsConfig.Entry island;
+    private IslandsConfig.IslandEntry island;
 
     CopyLocation copyLocation;
     CopyLocation clearLocation;
@@ -41,7 +41,6 @@ public class CopyTask extends Task {
     private int buildDelay;
 
     private int radius;
-    private int clearSize;
 
     private boolean useShapes = false;
 
@@ -96,11 +95,10 @@ public class CopyTask extends Task {
         }
     }
 
-    public CopyTask(Player player, Location sourceLocation, IslandsConfig.Entry island, boolean paste, boolean clear, boolean useShapes, int clearSize) {
+    public CopyTask(Player player, Location sourceLocation, IslandsConfig.IslandEntry island, boolean paste, boolean clear, boolean useShapes) {
         this();
 
         int[][] corners = IslandsConfig.getIslandCorner(island.xIndex, island.zIndex, island.size);
-        int[][] clearCorners = IslandsConfig.getIslandCorner(island.xIndex, island.zIndex, clearSize);
         this.sourceWorld = sourceLocation.getWorld();
 
         this.copyLocation = new CopyLocation(corners[0][0],
@@ -110,17 +108,9 @@ public class CopyTask extends Task {
                 sourceLocation.getBlockY() - island.size / 2,
                 sourceLocation.getBlockZ() - island.size / 2);
 
-        this.clearLocation = new CopyLocation(clearCorners[0][0],
-                island.y,
-                clearCorners[0][1],
-                sourceLocation.getBlockX() - clearSize / 2,
-                sourceLocation.getBlockY() - clearSize / 2,
-                sourceLocation.getBlockZ() - clearSize / 2);
-
         this.player = player;
         this.island = island;
         this.radius = island.size / 2;
-        this.clearSize = clearSize;
 
         this.clear = clear;
         this.paste = paste;
@@ -139,7 +129,7 @@ public class CopyTask extends Task {
     }
 
     // For clear command only
-    public CopyTask(Player player, IslandsConfig.Entry island) {
+    public CopyTask(Player player, IslandsConfig.IslandEntry island) {
         this();
         
         int[][] corners = IslandsConfig.getIslandCorner(island.xIndex, island.zIndex, island.size);
@@ -151,7 +141,6 @@ public class CopyTask extends Task {
         this.player = player;
         this.island = island;
         this.radius = island.size / 2;
-        this.clearSize = island.size;
 
         this.clear = true;
         this.paste = false;
@@ -170,15 +159,14 @@ public class CopyTask extends Task {
     @Override
     public void run() {
         int maxYAdd = (int) (island.size / 2d + 4 * 0.7 + stalactiteHeight);
-        int maxYAddClear = (int) (clearSize / 2d + 4 * 0.7 + stalactiteHeight);
 
         if (clear) { // Clear the area first if necessary
             for (int count = 0; count < rowsClearedPerDelay; count++) {
-                int x = index % clearSize;
-                int z = index / clearSize;
+                int x = index % island.size;
+                int z = index / island.size;
 
                 boolean skipDelay = true;
-                for (int y = -maxYAddClear; y <= clearSize; y++) {
+                for (int y = -maxYAdd; y <= island.size; y++) {
                     CopyLocation l = clearLocation.add(x, y, z);
                     Block ib = l.getIslandBlock();
 
@@ -191,19 +179,22 @@ public class CopyTask extends Task {
 
                 if (skipDelay) count--;
 
-                if (z >= clearSize) {
+                if (z >= island.size) {
                     Messages.send(player, "success.CLEARING_DONE");
-
+                    Islands.instance.getLogger().info("Island clearing complete for " + player.getName());
                     index = 0;
                     clear = false;
 
                     break;
                 } else if (index == IslandsConfig.INSTANCE.islandSpacing * IslandsConfig.INSTANCE.islandSpacing / 4) {
                     Messages.send(player, "info.CLEARING_STATUS", 25);
+                    Islands.instance.getLogger().info("25% clearing island for " + player.getName());
                 } else if (index == IslandsConfig.INSTANCE.islandSpacing * IslandsConfig.INSTANCE.islandSpacing / 2) {
                     Messages.send(player, "info.CLEARING_STATUS", 50);
+                    Islands.instance.getLogger().info("50% clearing island for " + player.getName());
                 } else if (index == IslandsConfig.INSTANCE.islandSpacing * IslandsConfig.INSTANCE.islandSpacing / 4 * 3) {
                     Messages.send(player, "info.CLEARING_STATUS", 75);
+                    Islands.instance.getLogger().info("75% clearning island for " + player.getName());
                 }
 
                 index++;
@@ -216,7 +207,7 @@ public class CopyTask extends Task {
              IslandGeneration.queue.remove(this);
 
             if ( !IslandGeneration.queue.isEmpty()) {
-                Task nextTask =  IslandGeneration.queue.get(0);
+                Task nextTask =  IslandGeneration.INSTANCE.peekQueue();
                 nextTask.runTaskTimer(Islands.instance, 0, buildDelay);
             }
 
@@ -283,14 +274,18 @@ public class CopyTask extends Task {
                 island.setSpawnPosition(spawn);
 
                 player.sendMessage(Messages.get("success.GENERATION_DONE"));
+                Islands.instance.getLogger().info("Island generation complete for " + player.getName());
                 paste = false;
                 break;
             } else if (index == island.size * island.size / 4) {
                 player.sendMessage(Messages.get("info.GENERATION_STATUS", 25));
+                Islands.instance.getLogger().info("25% generating island for " + player.getName());
             } else if (index == island.size * island.size / 2) {
                 player.sendMessage(Messages.get("info.GENERATION_STATUS", 50));
+                Islands.instance.getLogger().info("50% generating island for " + player.getName());
             } else if (index == island.size * island.size / 4 * 3) {
                 player.sendMessage(Messages.get("info.GENERATION_STATUS", 75));
+                Islands.instance.getLogger().info("75% generating island for " + player.getName());
             }
 
             index++;

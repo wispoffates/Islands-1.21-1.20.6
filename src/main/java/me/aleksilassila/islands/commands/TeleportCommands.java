@@ -73,7 +73,7 @@ public class TeleportCommands {
                 return true;
             }
 
-            IslandsConfig.Entry e = IslandsConfig.getIslandByName(args[0]);
+            IslandsConfig.IslandEntry e = IslandsConfig.getIslandByName(args[0]);
 
             if (e != null) {
                 e.teleport(player);
@@ -134,17 +134,17 @@ public class TeleportCommands {
                 return true;
             }
 
-            List<IslandsConfig.Entry> islands = IslandsConfig.getOwnedIslands(player.getUniqueId());
+            List<IslandsConfig.IslandEntry> islands = IslandsConfig.getOwnedIslands(player.getUniqueId());
             Map<String, Integer> idMap = new HashMap<>();
 
-             for (IslandsConfig.Entry e : islands) {
+             for (IslandsConfig.IslandEntry e : islands) {
                  idMap.put(e.islandId, e.homeId);
              }
 
             islands.sort(Comparator.comparingInt(e -> e.homeId));
 
             player.sendMessage(Messages.get("success.HOMES_FOUND", islands.size()));
-            for (IslandsConfig.Entry e : islands) {
+            for (IslandsConfig.IslandEntry e : islands) {
                 Messages.send(player, "success.HOME_ITEM", e.name, idMap.get(e.islandId));
             }
 
@@ -217,15 +217,15 @@ public class TeleportCommands {
                 homeId = IslandsConfig.getLowestHome(player.getUniqueId());
             }
 
-            IslandsConfig.Entry island = IslandsConfig.getHomeIsland(player.getUniqueId(), homeId);
+            IslandsConfig.IslandEntry island = IslandsConfig.getHomeIsland(player.getUniqueId(), homeId);
 
             if (island == null) {
                 player.sendMessage(Messages.get("error.HOME_NOT_FOUND"));
                 return true;
             }
 
-            if (!IslandGeneration.INSTANCE.queue.isEmpty()
-                    && IslandGeneration.INSTANCE.queue.get(0).getIslandId().equals(island.islandId)
+            if (!IslandGeneration.INSTANCE.queueIsEmpty()
+                    && IslandGeneration.INSTANCE.peekQueue().getIslandId().equals(island.islandId)
                     && !unfinishedIslandTeleports) {
                 Messages.send(player, "error.ISLAND_UNFINISHED");
                 return true;

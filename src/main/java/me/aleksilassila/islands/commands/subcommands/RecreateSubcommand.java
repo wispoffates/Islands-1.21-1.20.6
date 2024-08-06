@@ -15,7 +15,7 @@ public class RecreateSubcommand extends AbstractCreateSubcommands {
 
     @Override
     protected void openGui(Player player) {
-        IslandsConfig.Entry island = getIsland(player);
+        IslandsConfig.IslandEntry island = getIsland(player);
         if (island == null) return;
 
         CreateGUI gui = new CreateGUI(plugin, player, "recreate");
@@ -28,13 +28,13 @@ public class RecreateSubcommand extends AbstractCreateSubcommands {
         gui.open();
     }
 
-    private IslandsConfig.Entry getIsland(Player player) {
+    private IslandsConfig.IslandEntry getIsland(Player player) {
         if (!player.getWorld().equals(Islands.islandsWorld)) {
             player.sendMessage(Messages.get("error.WRONG_WORLD"));
             return null;
         }
 
-        IslandsConfig.Entry island = IslandsConfig.getEntry(player.getLocation().getBlockX(), player.getLocation().getBlockZ(), true);
+        IslandsConfig.IslandEntry island = IslandsConfig.getEntry(player.getLocation().getBlockX(), player.getLocation().getBlockZ(), true);
 
         if (island == null) {
             player.sendMessage(Messages.get("error.NOT_ON_ISLAND"));
@@ -55,7 +55,7 @@ public class RecreateSubcommand extends AbstractCreateSubcommands {
             return;
         }
 
-        IslandsConfig.Entry island = getIsland(player);
+        IslandsConfig.IslandEntry island = getIsland(player);
         if (island == null) return;
 
         double cost = 0.0;

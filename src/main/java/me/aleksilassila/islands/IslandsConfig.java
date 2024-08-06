@@ -28,8 +28,8 @@ public enum IslandsConfig {
     public final int verticalSpacing;
     public final boolean islandDamage;
 
-    public static HashMap<String, Entry> entries;
-    public static Entry spawnIsland = null;
+    public static Map<String, IslandEntry> entries;
+    public static IslandEntry spawnIsland = null;
 
     private static FileConfiguration config;
     private static File configFile;
@@ -69,10 +69,10 @@ public enum IslandsConfig {
         }
     }
 
-    public static HashMap<String, Entry> loadEntries() {
-        HashMap<String, Entry> entries = new HashMap<>();
+    public static Map<String, IslandEntry> loadEntries() {
+        HashMap<String, IslandEntry> entries = new HashMap<>();
         for (String islandId : getConfig().getKeys(false)) {
-            Entry e = new Entry(islandId);
+            IslandEntry e = new IslandEntry(islandId);
             entries.put(islandId, e);
             if (e.isSpawn) spawnIsland = e;
         }
@@ -82,7 +82,7 @@ public enum IslandsConfig {
 
     public static void updateEntries() {
         for (String islandId : entries.keySet()) {
-            Entry e = entries.get(islandId);
+            IslandEntry e = entries.get(islandId);
             if (e.shouldUpdate) {
                 e.writeToConfig();
                 e.shouldUpdate = false;
@@ -93,7 +93,7 @@ public enum IslandsConfig {
     }
 
     @Nullable
-    public static Entry getEntry(int x, int z, boolean useRawCoordinates) {
+    public static IslandEntry getEntry(int x, int z, boolean useRawCoordinates) {
         if (!useRawCoordinates) return getEntry(x, z);
 
         int xIndex = x / INSTANCE.islandSpacing;
@@ -103,21 +103,21 @@ public enum IslandsConfig {
     }
 
     @Nullable
-    public static Entry getEntry(int xIndex, int zIndex) { // fixme not finding some islands by raw coordinates
-        for (Entry e : entries.values()) {
+    public static IslandEntry getEntry(int xIndex, int zIndex) { // fixme not finding some islands by raw coordinates
+        for (IslandEntry e : entries.values()) {
             if (e.xIndex == xIndex && e.zIndex == zIndex) return e;
         }
 
         return null;
     }
 
-    public static Entry createIsland(UUID uuid, int islandSize, int height, Biome biome) {
+    public static IslandEntry createIsland(UUID uuid, int islandSize, int height, Biome biome) {
         int index = 0;
 
         Set<String> islands = entries.keySet();
 
         while (true) {
-            int[] pos = placement.getIslandPos(index);
+            int[] pos = Placement.getIslandPos(index);
 
             if (!islands.contains(posToIslandId(pos[0], pos[1]))) {
                 return addIsland(pos[0], pos[1], islandSize, height, uuid, String.valueOf(getNewHomeId(uuid)), biome);
@@ -128,9 +128,9 @@ public enum IslandsConfig {
     }
 
     @NotNull
-    private static Entry addIsland(int xIndex, int zIndex, int islandSize, int height, UUID uuid, String name, Biome biome) {
+    private static IslandEntry addIsland(int xIndex, int zIndex, int islandSize, int height, UUID uuid, String name, Biome biome) {
         String islandId = posToIslandId(xIndex, zIndex);
-        Entry e = new Entry(xIndex, zIndex, islandSize, height, uuid, name, biome);
+        IslandEntry e = new IslandEntry(xIndex, zIndex, islandSize, height, uuid, name, biome);
         entries.put(islandId, e);
         e.writeToConfig();
         saveIslandsConfig();
@@ -138,10 +138,10 @@ public enum IslandsConfig {
     }
 
     @NotNull
-    public static List<Entry> getOwnedIslands(UUID uuid) {
-        List<Entry> islands = new ArrayList<>();
+    public static List<IslandEntry> getOwnedIslands(UUID uuid) {
+        List<IslandEntry> islands = new ArrayList<>();
 
-        for (Entry e : entries.values()) {
+        for (IslandEntry e : entries.values()) {
             if (uuid.equals(e.uuid)) islands.add(e);
         }
 
@@ -153,7 +153,7 @@ public enum IslandsConfig {
         Map<String, Map<String, String>> islands = new HashMap<>();
 
         for (String islandId : entries.keySet()) {
-            Entry e = entries.get(islandId);
+            IslandEntry e = entries.get(islandId);
 
             if (!publicOnly || e.isPublic) {
                 String name = e.isPublic ? e.name : islandId;
@@ -184,7 +184,7 @@ public enum IslandsConfig {
         Map<String, Map<String, String>> finalIslands = new HashMap<>();
 
         for (String islandId : entries.keySet()) {
-            Entry e = entries.get(islandId);
+            IslandEntry e = entries.get(islandId);
             if (islands.containsKey(islandId) && uuid.equals(e.uuid))
                 finalIslands.put(islandId, islands.get(islandId));
         }
@@ -196,7 +196,7 @@ public enum IslandsConfig {
     public static Map<UUID, Integer> getIslandOwners() {
         Map<UUID, Integer> players = new HashMap<>();
 
-        for (Entry e : entries.values()) {
+        for (IslandEntry e : entries.values()) {
             if (e.uuid != null) {
                 if (players.containsKey(e.uuid)) {
                     players.put(e.uuid, players.get(e.uuid) + 1);
@@ -210,8 +210,8 @@ public enum IslandsConfig {
     }
 
     @Nullable
-    public static Entry getIslandByName(String name) {
-        for (Entry e : entries.values()) {
+    public static IslandEntry getIslandByName(String name) {
+        for (IslandEntry e : entries.values()) {
             if (name.equalsIgnoreCase(e.name) && e.isPublic) {
                 return e;
             }
@@ -221,10 +221,10 @@ public enum IslandsConfig {
     }
 
     @Nullable
-    public static Entry getHomeIsland(UUID uuid, int homeId) {
-        List<Entry> allIslands = getOwnedIslands(uuid);
+    public static IslandEntry getHomeIsland(UUID uuid, int homeId) {
+        List<IslandEntry> allIslands = getOwnedIslands(uuid);
 
-        for (Entry e : allIslands) {
+        for (IslandEntry e : allIslands) {
             if (e.homeId == homeId) {
                 return e;
             }
@@ -234,11 +234,11 @@ public enum IslandsConfig {
     }
 
     public static int getLowestHome(UUID uuid) {
-        List<Entry> allIslands = getOwnedIslands(uuid);
+        List<IslandEntry> allIslands = getOwnedIslands(uuid);
 
         int lowestHome = -1;
 
-        for (Entry e : allIslands) {
+        for (IslandEntry e : allIslands) {
             if (e.homeId != -1 && (e.homeId < lowestHome || lowestHome == -1)) {
                 lowestHome = e.homeId;
             }
@@ -258,7 +258,7 @@ public enum IslandsConfig {
         int xIndex = x / INSTANCE.islandSpacing;
         int zIndex = z / INSTANCE.islandSpacing;
 
-        Entry e = getEntry(xIndex, zIndex);
+        IslandEntry e = getEntry(xIndex, zIndex);
         if (e == null)
             return false;
 
@@ -278,7 +278,7 @@ public enum IslandsConfig {
     public static int getNewHomeId(UUID uuid) {
         List<Integer> homeIds = new ArrayList<>();
 
-        for (Entry e : getOwnedIslands(uuid)) {
+        for (IslandEntry e : getOwnedIslands(uuid)) {
             homeIds.add(e.homeId);
         }
 
@@ -323,7 +323,7 @@ public enum IslandsConfig {
         };
     }
 
-    public static class Entry {
+    public static class IslandEntry {
         public String islandId;
         public int xIndex;
         public int zIndex;
@@ -336,12 +336,12 @@ public enum IslandsConfig {
         public int homeId;
         public boolean isPublic;
         public int y;
-        protected Location spawnPosition;
+        private Location spawnPosition;
         public boolean isSpawn;
 
         boolean shouldUpdate = false;
 
-        public Entry(String islandId) {
+        public IslandEntry(String islandId) {
             FileConfiguration fc = getConfig();
             this.islandId = islandId;
 
@@ -373,15 +373,18 @@ public enum IslandsConfig {
             this.isSpawn = fc.getBoolean(islandId + ".isSpawn", false);
 
             this.claimId = fc.getLong(islandId + ".claimId", -1);
-
-            if (this.claimId == -1 && GPWrapper.enabled) {
-                deleteClaims();
-                this.claimId = createClaims(xIndex, zIndex, size, uuid);
-                this.shouldUpdate = true;
+            //TODO: Check if claim is in database if not try and recreate it
+            //Fix missing claims.  Usually trigged if GP is added after the island was created.
+            if (this.claimId == -1) {
+                GPWrapper.deleteClaims(this);
+                this.claimId = GPWrapper.createClaims(this);
+                if(this.claimId != -1) {
+                    this.shouldUpdate = true;
+                }
             }
         }
 
-        public Entry(int xIndex, int zIndex, int size, int height, UUID uuid, String name, Biome biome) {
+        public IslandEntry(int xIndex, int zIndex, int size, int height, UUID uuid, String name, Biome biome) {
             this.islandId = posToIslandId(xIndex, zIndex);
             this.xIndex = xIndex;
             this.zIndex = zIndex;
@@ -392,13 +395,13 @@ public enum IslandsConfig {
             this.biome = biome;
             this.homeId = getNewHomeId(uuid);
 
-            this.claimId = GPWrapper.enabled ? createClaims(xIndex, zIndex, size, uuid) : -1;
+            this.claimId = GPWrapper.createClaims(this);
 
             int[][] ic = getIslandCorner(xIndex, zIndex, size);
             this.spawnPosition = new Location(Islands.islandsWorld, 
-                ic[0][0] + size / 2,  
-                Islands.islandsWorld.getHighestBlockYAt(ic[0][0] + size / 2, ic[0][1] + size / 2), 
-                ic[0][1] + size / 2
+                ic[0][0] + size / 2.0,  
+                Islands.islandsWorld.getMaxHeight(), //start at max heigh here  
+                ic[0][1] + size / 2.0
             );
 
             this.y = getIslandY(xIndex, zIndex);
@@ -410,16 +413,15 @@ public enum IslandsConfig {
 
         public void delete() {
             getConfig().set(islandId, null);
-            if (GPWrapper.enabled)
-                deleteClaims();
+            GPWrapper.deleteClaims(this);
             entries.remove(islandId);
 
             saveIslandsConfig();
         }
 
         public void writeToConfig() {
+            //why do we recompute these?
             int[][] ic = getIslandCorner(xIndex, zIndex, size);
-
             String islandId = posToIslandId(xIndex, zIndex);
 
             getConfig().set(islandId + ".xIndex", xIndex);
@@ -474,10 +476,8 @@ public enum IslandsConfig {
         public void giveIsland(OfflinePlayer player) {
             this.uuid = player.getUniqueId();
             this.homeId = getNewHomeId(player.getUniqueId());
-            if (GPWrapper.enabled) {
-                deleteClaims();
-                this.claimId = createClaims(xIndex, zIndex, size, player.getUniqueId());
-            }
+            GPWrapper.deleteClaims(this);
+            this.claimId = GPWrapper.createClaims(this);
 
             shouldUpdate = true;
         }
@@ -485,11 +485,8 @@ public enum IslandsConfig {
         public void giveToServer() {
             this.uuid = null;
             this.homeId = -1;
-            if (GPWrapper.enabled) {
-                deleteClaims();
-                this.claimId = createClaims(xIndex, zIndex, size, null);
-            }
-
+            GPWrapper.deleteClaims(this);
+            GPWrapper.createClaims(this);
             shouldUpdate = true;
         }
 
@@ -500,79 +497,6 @@ public enum IslandsConfig {
             shouldUpdate = true;
         }
 
-        public void resizeClaim(int islandSize) {
-            int[][] ic = getIslandCorner(xIndex, zIndex, islandSize);
-
-            Claim c = GPWrapper.gp.dataStore.getClaimAt(new Location(
-                    Islands.islandsWorld,
-                    spawnPosition.getX(),
-                    spawnPosition.getY(),
-                    spawnPosition.getZ()), true, false, null);
-            GPWrapper.gp.dataStore.resizeClaim(c,
-                    ic[0][0], ic[1][0],
-                    0, Islands.islandsWorld.getMaxHeight(),
-                    ic[0][1], ic[1][1], Bukkit.getPlayer(uuid));
-        }
-
-        private static long createClaims(int xIndex, int zIndex, int size, UUID uuid) {
-            int[][] ipc = getIslandPlotCorner(xIndex, zIndex);
-            CreateClaimResult r = GPWrapper.gp.dataStore.createClaim(Islands.islandsWorld,
-                ipc[0][0], ipc[1][0],
-                0, 255,
-                ipc[0][1], ipc[1][1],
-                null, null, null, null);
-
-            if (r.succeeded) {
-                long claimId = r.claim.getID();
-                int[][] ic = getIslandCorner(xIndex, zIndex, size);
-
-
-                Claim subClaim = GPWrapper.gp.dataStore.createClaim(Islands.islandsWorld,
-                ic[0][0], ic[1][0],
-                0, 255,
-                ic[0][1], ic[1][1],
-                null, r.claim, null, null).claim;
-                if (uuid != null) {
-                    subClaim.setPermission(uuid.toString(), ClaimPermission.Build);
-                    addClaimManager(subClaim, uuid.toString());
-
-                    Player p = Bukkit.getOfflinePlayer(uuid).getPlayer();
-
-                    if (Islands.instance.getConfig().getBoolean("GPAccessWholePlot") ||
-                            (p != null && p.hasPermission(Permissions.bypass.interactInPlot))) {
-                        r.claim.setPermission(uuid.toString(), ClaimPermission.Build);
-                        addClaimManager(r.claim, uuid.toString());
-                    }
-                }
-
-                return claimId;
-            } else {
-                Islands.instance.getLogger().severe("Error creating claim for island at plot " + xIndex + ", " + zIndex);
-                return -1;
-            }
-        }
-
-        private static void addClaimManager(Claim claim, String uuid) {
-            if (!claim.managers.contains(uuid)) {
-                claim.managers.add(uuid);
-                GPWrapper.gp.dataStore.saveClaim(claim);
-            }
-        }
-
-        private void deleteClaims() {
-            Claim c = GPWrapper.gp.dataStore.getClaim(this.claimId);
-
-            if (c == null) {
-                int[][] ic = getIslandCorner(xIndex, zIndex, size);
-                c = GPWrapper.gp.dataStore.getClaimAt(new Location(Islands.islandsWorld, ic[0][0], 50, ic[0][1]), true, true, null);
-            }
-
-            if (c != null) {
-                GPWrapper.gp.dataStore.deleteClaim(c);
-            }
-            this.claimId = -1;
-        }
-
         public void teleport(Player player) {
             if (INSTANCE.islandDamage)
                 Islands.instance.playersWithNoFall.add(player);
@@ -580,7 +504,9 @@ public enum IslandsConfig {
         }
     }
 
-    public static class placement {
+    public static class Placement {
+        private Placement(){}
+
         public static int getLayer(int index) {
             return (int) Math.floor(Math.sqrt(index));
         }

@@ -38,6 +38,10 @@ generation:
                                         # Should be the same as the biggest island size being generated. Read more in Wiki > How does it work
   stalactiteLength: 8                   # Length of procedural stalactite hanging from islands
   stalactiteSpacing: 4                  # Average distance between hanging stalactites
+  # - Suitable Location Search
+  maxSearchAttempts: 1000               # Max number of searches before giving up and taking the best found so far
+  searchAttemptsPerTick: 4              # How many searches to do per tick
+  maxAllowedIncorrectBiome: 0.1         # 10% of island can be an incorrect biome. Raising this speeds up island search at the cost of having incorrect biome islands more often.
 
 biomeBlacklist:                         # These biomes do not get picked up by island generator.
   - DEEP_OCEAN                          # Ocean biomes work poorly with islands.
@@ -68,8 +72,8 @@ voidTeleport: true                      # If disabled, void kills again in islan
 voidTeleportVelocity: false             # Teleport the player using velocity to another server.
 voidTeleportVelocityServer: otherServer # The server to teleport the user to when they fall into the void.
 onLoginTPToSpawn: false                 # On login teleport player to spawn (following two options override the location)
-spawnWorld: spawnWorld                  # If this is not empty on login they will be teleported to the provided world.
-spawnLocation: x y z yaw pitch          # If this is not empty on login they will be teleported to this location on the provided world.
+#spawnWorld: spawnWorld                  # If this is not empty on login they will be teleported to the provided world.
+#spawnLocation: x y z yaw pitch          # If this is not empty on login they will be teleported to this location on the provided world.
 islandDamage: false                     # Enable / disable damage on islands
 restrictIslandBlockFlows: true          # Let water / lava only flow inside a sphere containing island
 disableWilderness: false                # Disable wilderness, do not touch unless you know what you are doing

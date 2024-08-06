@@ -151,10 +151,10 @@ public class Islands extends JavaPlugin {
 
         int height = islandSize;
 
-        IslandsConfig.Entry island = IslandsConfig.createIsland(player.getUniqueId(), islandSize, height, biome);
+        IslandsConfig.IslandEntry island = IslandsConfig.createIsland(player.getUniqueId(), islandSize, height, biome);
 
         try {
-            boolean success = IslandGeneration.INSTANCE.copyIsland(player, island, false, noShape, island.size);
+            boolean success = IslandGeneration.INSTANCE.copyIsland(player, island, false, noShape);
 
             if (!success) {
                 island.delete();
@@ -169,7 +169,7 @@ public class Islands extends JavaPlugin {
 
     }
 
-    public boolean recreateIsland(IslandsConfig.Entry island, Biome biome, int islandSize, Player player) throws IllegalArgumentException {
+    public boolean recreateIsland(IslandsConfig.IslandEntry island, Biome biome, int islandSize, Player player) throws IllegalArgumentException {
         // If random biome
         biome = Optional.ofNullable(biome).orElse(Biomes.getRandomBiome());
 
@@ -185,12 +185,10 @@ public class Islands extends JavaPlugin {
         island.size = islandSize;
         island.height = height;
         island.biome = biome;
-        if (GPWrapper.enabled)
-            island.resizeClaim(islandSize);
         island.shouldUpdate = true;
 
         try {
-            return IslandGeneration.INSTANCE.copyIsland(player, island, true, noShape, oldSize);
+            return IslandGeneration.INSTANCE.copyIsland(player, island, true, noShape);
 
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException();

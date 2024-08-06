@@ -54,7 +54,7 @@ public class VisitGUI extends PageGUI {
 
         // Sort islands
         if (sort == 0) { // Sort by date, oldest first
-            sortedSet.sort(Comparator.comparingInt(IslandsConfig.placement::getIslandIndex));
+            sortedSet.sort(Comparator.comparingInt(IslandsConfig.Placement::getIslandIndex));
         } else { // Sort by name
             sortedSet.sort(Comparator.comparingInt(a -> publicIslands.get(a).get("name").charAt(0)));
         }

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractIslandsWorldSubcommand extends Subcommand {
-    protected abstract void runCommand(Player player, String[] args, boolean confirmed, IslandsConfig.Entry island);
+    protected abstract void runCommand(Player player, String[] args, boolean confirmed, IslandsConfig.IslandEntry island);
 
     @Override
     public void onCommand(Player player, String[] args, boolean confirmed) {
@@ -18,7 +18,7 @@ public abstract class AbstractIslandsWorldSubcommand extends Subcommand {
             return;
         }
 
-        IslandsConfig.Entry island = IslandsConfig.getEntry(player.getLocation().getBlockX(), player.getLocation().getBlockZ(), true);
+        IslandsConfig.IslandEntry island = IslandsConfig.getEntry(player.getLocation().getBlockX(), player.getLocation().getBlockZ(), true);
 
         if (island == null) {
             Messages.send(player, "error.NOT_ON_ISLAND");

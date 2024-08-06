@@ -17,7 +17,7 @@ public class SaveSubcommand extends AbstractIslandsWorldSubcommand {
     private final String SAVE_DIRECTORY = "plugins/Islands/saves/";
 
     @Override
-    protected void runCommand(Player player, String[] args, boolean confirmed, IslandsConfig.Entry island) {
+    protected void runCommand(Player player, String[] args, boolean confirmed, IslandsConfig.IslandEntry island) {
         if (Islands.instance.worldEdit != null) {
             String name = island.name;
 

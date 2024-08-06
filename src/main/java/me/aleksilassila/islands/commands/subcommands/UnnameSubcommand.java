@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 
 public class UnnameSubcommand extends AbstractIslandsWorldSubcommand {
     @Override
-    protected void runCommand(Player player, String[] args, boolean confirmed, IslandsConfig.Entry island) {
+    protected void runCommand(Player player, String[] args, boolean confirmed, IslandsConfig.IslandEntry island) {
         if (args.length != 0) {
             Messages.send(player, "usage.UNNAME");
             return;

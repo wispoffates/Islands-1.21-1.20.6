@@ -185,7 +185,7 @@ public class AdminGUI extends PageGUI {
     }
 
     private void teleportIsland(String islandId) {
-        IslandsConfig.Entry e = IslandsConfig.entries.get(islandId);
+        IslandsConfig.IslandEntry e = IslandsConfig.entries.get(islandId);
 
         if (e != null) {
             e.teleport(player);
