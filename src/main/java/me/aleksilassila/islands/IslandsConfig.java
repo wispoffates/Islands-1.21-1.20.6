@@ -2,11 +2,6 @@ package me.aleksilassila.islands;
 
 import me.aleksilassila.islands.generation.CopyTask;
 import me.aleksilassila.islands.utils.BiomeMaterials;
-import me.aleksilassila.islands.utils.Permissions;
-import me.ryanhamshire.GriefPrevention.Claim;
-import me.ryanhamshire.GriefPrevention.ClaimPermission;
-import me.ryanhamshire.GriefPrevention.CreateClaimResult;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Biome;
@@ -373,7 +368,10 @@ public enum IslandsConfig {
             this.isSpawn = fc.getBoolean(islandId + ".isSpawn", false);
 
             this.claimId = fc.getLong(islandId + ".claimId", -1);
-            //TODO: Check if claim is in database if not try and recreate it
+            //Check if claim is in database if not try and recreate it
+            if(!GPWrapper.claimExists(this.claimId)) {
+                this.claimId = -1;
+            }
             //Fix missing claims.  Usually trigged if GP is added after the island was created.
             if (this.claimId == -1) {
                 GPWrapper.deleteClaims(this);

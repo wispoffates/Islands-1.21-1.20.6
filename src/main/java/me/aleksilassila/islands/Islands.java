@@ -308,7 +308,7 @@ public class Islands extends JavaPlugin {
 
         if (configIslandSizes == null) {
             getLogger().severe("PLEASE DEFINE AT LEAST 1 ISLAND SIZE IN config.yml UNDER islandSizes:");
-            getPluginLoader().disablePlugin(this);
+            Bukkit.getServer().getPluginManager().disablePlugin(this);
             return sizes;
         }
 

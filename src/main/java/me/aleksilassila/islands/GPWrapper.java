@@ -12,6 +12,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GPWrapper {
@@ -53,13 +54,17 @@ public class GPWrapper {
         if(!enabled) {
             return -1;
         }
+        UUID player = null;
+        if (Islands.instance.getConfig().getBoolean("GPAccessWholePlot")) {
+            player = entry.uuid;
+        }
 
         int[][] ipc = IslandsConfig.getIslandPlotCorner(entry.xIndex, entry.zIndex);
         CreateClaimResult r = GPWrapper.gp.dataStore.createClaim(Islands.islandsWorld,
             ipc[0][0], ipc[1][0],
             0, Islands.islandsWorld.getMaxHeight(),
             ipc[0][1], ipc[1][1],
-            null, null, null, null);
+            player, null, null, null);
 
         if (r.succeeded) {
             long claimId = r.claim.getID();
@@ -70,7 +75,7 @@ public class GPWrapper {
             ic[0][0], ic[1][0],
             0, Islands.islandsWorld.getMaxHeight(),
             ic[0][1], ic[1][1],
-            null, r.claim, null, null).claim;
+            entry.uuid, r.claim, null, null).claim;
             if (entry.uuid != null) {
                 subClaim.setPermission(entry.uuid.toString(), ClaimPermission.Build);
                 addClaimManager(subClaim, entry.uuid.toString());
@@ -108,6 +113,14 @@ public class GPWrapper {
             GPWrapper.gp.dataStore.deleteClaim(c);
         }
         entry.claimId = -1;
+    }
+
+    public static boolean claimExists(long claimId) {
+        if(!enabled || claimId == -1) {
+            return false;
+        }
+
+        return GPWrapper.gp.dataStore.getClaim(claimId) != null;
     }
         
 }

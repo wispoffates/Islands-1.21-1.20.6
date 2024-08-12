@@ -13,12 +13,11 @@ import org.bukkit.entity.Player;
 
 import me.aleksilassila.islands.Islands;
 import me.aleksilassila.islands.IslandsConfig.IslandEntry;
+import me.aleksilassila.islands.generation.Biomes.BiomeSearchResult;
 import net.kyori.adventure.util.TriState;
 
 /**
  * This task searches for a location in the source world matching the wanted biome for the island.
- * 
- * This should probable use a callback to the IslandGeneration rather then spawning the next task itself.
  */
 public class FindSuitableLocationTask extends Task {
 
@@ -29,33 +28,33 @@ public class FindSuitableLocationTask extends Task {
     private double maxAllowedIncorrectBiome;
     private boolean shouldClearArea;
     private boolean noShape;
-    private long buildDelay;
+    private long searchDelay;
 
     private World sourceWorld;
     private Random random;
     private Location sourceLocation;
-    private double bestPercentSoFar = 1.0;
+    private BiomeSearchResult bestResultSoFar = null;
     private int currentSearchAttempts = 0;
 
     protected FindSuitableLocationTask(){}
 
-    public FindSuitableLocationTask(IslandEntry island, Player player, boolean shouldClearArea, boolean noShape, long buildDelay) {
+    public FindSuitableLocationTask(IslandEntry island, Player player, boolean shouldClearArea, boolean noShape) {
         this.player = player;
         this.island = island;
         this.random = new Random(System.currentTimeMillis());
 
         this.maxSearchAttempts = Islands.instance.getConfig().getInt("generation.maxSearchAttempts",1000);
-        this.searchAttemptsPerTick= Islands.instance.getConfig().getInt("generation.maxSearchAttempts",4);
-        this.maxAllowedIncorrectBiome = Islands.instance.getConfig().getDouble("generation.maxSearchAttempts",0.1);
+        this.searchAttemptsPerTick= Islands.instance.getConfig().getInt("generation.searchAttemptsPerTick",4);
+        this.maxAllowedIncorrectBiome = Islands.instance.getConfig().getDouble("generation.maxAllowedIncorrectBiome",0.1);
+        this.searchDelay = Islands.instance.getConfig().getLong("generation.searchDelay",20);
 
         this.shouldClearArea = shouldClearArea;
         this.noShape = noShape;
-        this.buildDelay = buildDelay;
     }
 
     @Override
     public void run() {
-        //onle create the source world on the first go around
+        //only create the source world on the first go around
         if(sourceWorld == null) {
             //create a world to use as the source
             Islands.instance.getLogger().info("Creating Island for " + player.getName() + " loading spawn world with biome " + island.biome);
@@ -65,20 +64,22 @@ public class FindSuitableLocationTask extends Task {
         //loop through the attempts for this tick
         for(int i=0; i < this.searchAttemptsPerTick; i++) {
             currentSearchAttempts++;
-            Location tempLocation = new Location(sourceWorld, random.nextInt(Biomes.INSTANCE.getBiomeSearchArea())-island.size, 0, random.nextInt(Biomes.INSTANCE.getBiomeSearchArea())-island.size);
+            Location tempLocation = new Location(sourceWorld, (double)random.nextInt(Biomes.INSTANCE.getBiomeSearchArea())-island.size, 0, (double)random.nextInt(Biomes.INSTANCE.getBiomeSearchArea())-island.size);
             //check if we have a suitable location break out of the loop
-            double waterPercent = Biomes.INSTANCE.isSuitableLocation(tempLocation,island.biome);
-            if(waterPercent < bestPercentSoFar) {
+            BiomeSearchResult biomeSearchResult = Biomes.INSTANCE.isSuitableLocation(tempLocation,island.size,island.biome);
+            if(bestResultSoFar == null || biomeSearchResult.getPercentIncorrect() < bestResultSoFar.getPercentIncorrect()) {
                 sourceLocation = tempLocation;
-                bestPercentSoFar = waterPercent;
+                bestResultSoFar = biomeSearchResult;
             }
         }
         //havent found a suitable biome and we are not past max attempts return so we can be run again next tick
-        if( (bestPercentSoFar > this.maxAllowedIncorrectBiome) && (this.maxSearchAttempts>this.currentSearchAttempts)) {
-            Islands.instance.getLogger().info("Rejected locations so far " + currentSearchAttempts + " with best biome percent so far " + (bestPercentSoFar*100) + "%");
+        if( (bestResultSoFar.getPercentIncorrect() > this.maxAllowedIncorrectBiome) && (this.maxSearchAttempts>this.currentSearchAttempts)) {
+            Islands.instance.getLogger().info("Rejected locations so far " + currentSearchAttempts + 
+                " with best biome percent so far " + (bestResultSoFar.getPercentIncorrect()*100) + "% in " + bestResultSoFar.getSamples() + " samples.");
             return;
         }
-        Islands.instance.getLogger().info("Found suitable location after " + currentSearchAttempts + " attempts with " + (bestPercentSoFar*100) + "% incorrect biome.");
+        Islands.instance.getLogger().info("Found suitable location after " + currentSearchAttempts + 
+            " attempts with " + (bestResultSoFar.getPercentIncorrect()*100) + "% incorrect biome in " + bestResultSoFar.getSamples() + " samples.");
     
         // Get island center y. Center block will be in the middle the first block that is not burnable
         //Start the height search at the hightest block and not 100
@@ -103,14 +104,10 @@ public class FindSuitableLocationTask extends Task {
 
         //remove from queue and cancel this task
         IslandGeneration.INSTANCE.removeFromQueue(player);
-        this.cancel();
 
         CopyTask task = new CopyTask(player, sourceLocation, island, true, shouldClearArea, !noShape);
-        if (IslandGeneration.INSTANCE.queueIsEmpty()) {
-            task.runTaskTimer(Islands.instance, 0, buildDelay);
-        }
-
         IslandGeneration.INSTANCE.addToQueue(task);
+        parent.taskComplete();
     }
 
     @Override
@@ -137,6 +134,20 @@ public class FindSuitableLocationTask extends Task {
         world.setDifficulty(Difficulty.PEACEFUL);
         
         return world;
+    }
+
+    @Override
+    public long getDelay() {
+        return this.searchDelay;
+    }
+
+    @Override
+    public String toString() {
+        return "FindSuitableLocationTask [maxSearchAttempts=" + maxSearchAttempts + ", searchAttemptsPerTick="
+                + searchAttemptsPerTick + ", maxAllowedIncorrectBiome=" + maxAllowedIncorrectBiome
+                + ", shouldClearArea=" + shouldClearArea + ", noShape=" + noShape + ", findDelay=" + searchDelay
+                + ", sourceLocation=" + sourceLocation + ", bestPercentSoFar=" + bestResultSoFar.getPercentIncorrect()
+                + ", currentSearchAttempts=" + currentSearchAttempts + "]";
     }
     
 }

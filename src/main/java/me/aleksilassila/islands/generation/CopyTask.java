@@ -99,6 +99,7 @@ public class CopyTask extends Task {
         this();
 
         int[][] corners = IslandsConfig.getIslandCorner(island.xIndex, island.zIndex, island.size);
+        int[][] clearCorners = IslandsConfig.getIslandCorner(island.xIndex, island.zIndex,IslandsConfig.INSTANCE.islandSpacing);
         this.sourceWorld = sourceLocation.getWorld();
 
         this.copyLocation = new CopyLocation(corners[0][0],
@@ -107,6 +108,11 @@ public class CopyTask extends Task {
                 sourceLocation.getBlockX() - island.size / 2,
                 sourceLocation.getBlockY() - island.size / 2,
                 sourceLocation.getBlockZ() - island.size / 2);
+
+        this.clearLocation = new CopyLocation(clearCorners[0][0],
+                island.y,
+                clearCorners[0][1],
+                0, 0, 0);
 
         this.player = player;
         this.island = island;
@@ -132,7 +138,7 @@ public class CopyTask extends Task {
     public CopyTask(Player player, IslandsConfig.IslandEntry island) {
         this();
         
-        int[][] corners = IslandsConfig.getIslandCorner(island.xIndex, island.zIndex, island.size);
+        int[][] corners = IslandsConfig.getIslandCorner(island.xIndex, island.zIndex, IslandsConfig.INSTANCE.islandSpacing);
         this.clearLocation = new CopyLocation(corners[0][0],
                 island.y,
                 corners[0][1],
@@ -199,19 +205,14 @@ public class CopyTask extends Task {
 
                 index++;
             }
-
-            return;
+            //still have work to do?
+            if(clear) {
+                return;
+            }
         }
 
         if (!paste) {
-             IslandGeneration.queue.remove(this);
-
-            if ( !IslandGeneration.queue.isEmpty()) {
-                Task nextTask =  IslandGeneration.INSTANCE.peekQueue();
-                nextTask.runTaskTimer(Islands.instance, 0, buildDelay);
-            }
-
-            this.cancel();
+            parent.taskComplete();
             return;
         }
 
@@ -290,6 +291,11 @@ public class CopyTask extends Task {
 
             index++;
         }
+        //still have work to do?
+        if(paste) {
+            return;
+        }
+        parent.taskComplete();
     }
 
     void clearBiome(Block block, Biome biome) {
@@ -407,5 +413,19 @@ public class CopyTask extends Task {
             return sourceWorld.getBlockAt((int) Math.round(sx), (int) Math.round(sy), (int) Math.round(sz));
         }
     }
+
+
+    @Override
+    public long getDelay() {
+        return this.buildDelay;
+    }
+
+    @Override
+    public String toString() {
+        return "CopyTask [copyLocation=" + copyLocation + ", proceduralShapes=" + proceduralShapes + ", clear=" + clear
+                + ", paste=" + paste + ", buildDelay=" + buildDelay + "]";
+    }
+
+    
 
 }

@@ -6,42 +6,30 @@ import me.aleksilassila.islands.utils.Messages;
 import me.aleksilassila.islands.utils.Permissions;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+
 import java.io.File;
 import java.util.*;
 
 public enum IslandGeneration {
     INSTANCE;
 
-    private final Islands plugin;
-
     protected static final Queue<Task> queue = new LinkedList<>();
     protected static final Queue<Task> VIPQueue = new LinkedList<>();
+    private QueueRunnerTask queueRunner;
 
-    private final int buildDelay;
 
     IslandGeneration() {
-        this.plugin = Islands.instance;
-
-        double delay = plugin.getConfig().getDouble("generation.generationDelayInTicks");
-
-        if (delay < 1.0) {
-            this.buildDelay = 1;
-        } else {
-            this.buildDelay = (int) delay;
-        }
+        this.queueRunner = new QueueRunnerTask();
+        this.queueRunner.runTaskTimer(Islands.instance, 0, 20);
     }
 
 
     public boolean copyIsland(Player player, IslandsConfig.IslandEntry updatedIsland, boolean shouldClearArea, boolean noShape) {
         if (!canAddQueueItem(player))
             return false;
-        Task task = new FindSuitableLocationTask(updatedIsland, player, shouldClearArea, noShape, buildDelay);
-        
-        if (IslandGeneration.INSTANCE.queueIsEmpty()) {
-            task.runTaskTimer(Islands.instance, 0, 1);
-        }
-
-        IslandGeneration.INSTANCE.addToQueue(task);
+        Task task = new FindSuitableLocationTask(updatedIsland, player, shouldClearArea, noShape);
+        addToQueue(task);
         return true;
     }
 
@@ -50,11 +38,6 @@ public enum IslandGeneration {
             return false;
 
         CopyTask task = new CopyTask(player, island);
-
-        if (queue.isEmpty()) {
-            task.runTaskTimer(plugin, 0, buildDelay);
-        }
-
         addToQueue(task);
         return true;
     }
@@ -88,15 +71,7 @@ public enum IslandGeneration {
         for (Task item : queue) {
             if (item.getPlayer().getUniqueId().equals(player.getUniqueId())) count++;
         }
-        return count<2;
-    }
-
-    public Task peekQueue() {
-        Task task = VIPQueue.peek();
-        if(task == null)
-            task = queue.peek();
-
-        return task;
+        return count>0;
     }
 
     public void removeFromQueue(Player player) {
@@ -118,7 +93,7 @@ public enum IslandGeneration {
         }
     }
 
-    public boolean queueIsEmpty() {
+    private boolean queueIsEmpty() {
         return VIPQueue.isEmpty() && queue.isEmpty();
     }
 
@@ -134,6 +109,17 @@ public enum IslandGeneration {
         return false;
     }
 
+    public boolean isIslandInQueue(String islandId) {
+        for (Task item : VIPQueue) {
+            if (item.getIslandId().equals(islandId)) return true;
+        }
+
+        for (Task item : queue) {
+            if (item.getIslandId().equals(islandId)) return true;
+        }
+        return false;
+    }
+
     public boolean worldExists(String name) {
         try {
             for (File f : Bukkit.getWorldContainer().listFiles()) {
@@ -144,5 +130,46 @@ public enum IslandGeneration {
         }
 
         return false;
+    }
+
+        /** Executes anything in the queue. */
+    public class QueueRunnerTask extends BukkitRunnable {
+
+        Task currentTask;
+
+        @Override
+        public void run() {
+            if(currentTask != null && Bukkit.getServer().getCurrentTick() % (20*60) == 0) {
+                Islands.instance.getLogger().info("Queue Depth: " + (VIPQueue.size() + queue.size()) + " Current Task: " + (currentTask != null ? currentTask.toString() : "None"));
+            }
+            //if nothing in the queue we are done here
+            if(IslandGeneration.INSTANCE.queueIsEmpty() && currentTask == null) {
+                return;
+            }
+
+            if(currentTask == null) {
+                currentTask = pollQueue();
+                currentTask.setParent(this);
+                currentTask.runTaskTimer(Islands.instance, 0, currentTask.getDelay());
+            }
+        }
+
+        /**
+         * Called when a task is complete.
+         */
+        public void taskComplete() {
+            //set current task to null so we can pick up the next one.
+            this.currentTask.cancel();
+            this.currentTask = null;
+        }
+
+        private Task pollQueue() {
+            Task task = VIPQueue.poll();
+            if(task == null)
+                task = queue.poll();
+    
+            return task;
+        }    
+        
     }
 }

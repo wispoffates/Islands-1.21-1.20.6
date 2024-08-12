@@ -224,8 +224,7 @@ public class TeleportCommands {
                 return true;
             }
 
-            if (!IslandGeneration.INSTANCE.queueIsEmpty()
-                    && IslandGeneration.INSTANCE.peekQueue().getIslandId().equals(island.islandId)
+            if (!IslandGeneration.INSTANCE.isIslandInQueue(island.islandId)
                     && !unfinishedIslandTeleports) {
                 Messages.send(player, "error.ISLAND_UNFINISHED");
                 return true;
